@@ -1,0 +1,8 @@
+{
+	"env":"localhost",
+	"asset_server":"http://127.0.0.1:3002",
+	"device_group_name": "test-group",
+	"device_name": "test-laptop",
+	"app_name": "test-app/1.0.2",
+	"backend_version": "0.0.0"
+}

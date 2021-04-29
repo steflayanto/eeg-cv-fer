@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "backend": "url"
+  },
+  "scripts": {
+    "backend": "backend"
+  },
+  "dependencies": {
+  }
+}
