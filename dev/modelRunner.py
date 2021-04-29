@@ -21,6 +21,9 @@ def main(argv):
                 if not sample_rate:
                     print("Error parsing labelFrequency: ", arg)
                     sys.exit()
+                if sample_rate < 1:
+                    print("Invalid sampel rate:", sample_rate)
+                    sys.exit()
             except Exception as e:
                 print("Error parsing labelFrequency: ", e)
                 sys.exit()
