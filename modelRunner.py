@@ -1,6 +1,8 @@
 import sys, getopt
 
-usage = "Usage: modelRunner.py [-n, --modelName] cv-default-mtcnn [-f, --labelFrequency] 2 [-d, --dataPath] data/video_or_eegfilename"
+from models.interface import DefaultCVModel
+
+usage = "Usage: modelRunner.py [-n, --modelName] cv-default-mtcnn [-f, --labelFrequency] 2 [-d, --dataPath] video_or_eegfilename"
 
 def main(argv):
     model_name, sample_rate, data_path = None, None, None
@@ -22,7 +24,7 @@ def main(argv):
                     print("Error parsing labelFrequency: ", arg)
                     sys.exit()
                 if sample_rate < 1:
-                    print("Invalid sampel rate:", sample_rate)
+                    print("Invalid sample rate:", sample_rate)
                     sys.exit()
             except Exception as e:
                 print("Error parsing labelFrequency: ", e)
@@ -41,3 +43,5 @@ if __name__ == "__main__":
         print("Error parsing args")
     model_name, sample_rate, data_path = ret
     print('Running model: {}, at frequency {} Hz, on data: {}'.format(model_name, sample_rate, data_path))
+    model = DefaultCVModel(sample_rate=sample_rate)
+    model.run("s01_trial01.avi")
