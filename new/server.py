@@ -15,7 +15,7 @@ def upload_file():
     uploaded_file = request.files['image']
     if 'mp4' in uploaded_file.filename:
         uploaded_file.save(os.path.join("static/",uploaded_file.filename))
-        return render_template('index.html', video_path=os.path.join("static/",uploaded_file.filename))
+        return render_template('playback.html', video_path=os.path.join("static/",uploaded_file.filename))
     if "npy" in uploaded_file.filename:
         print("hi")
     
