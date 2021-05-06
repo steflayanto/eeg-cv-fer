@@ -5,30 +5,29 @@ import json
 import os
 
 class AbstractModel:
-    def __init__(self):
-        pass
-
-    def run(self, data):
-        pass
-
-class DefaultCVModel:
     DATA_PATH = "./uploads/dev/"
     OUTPUT_PATH = "./output/"
-
     def __init__(self, sample_rate=2):
+        print("Error: called init on abstract class")
+        pass
+
+    def run(self, video_name):
+        print("Error: called run on abstract class")
+        pass
+
+class DefaultCVModel(AbstractModel):
+    def __init__(self, sample_rate=2, verbose=False):
         self.detector = FER(mtcnn=True)
         self.name = "default-mtcnn"
         self.sample_rate = sample_rate
+        self.verbose = verbose
 
+    def run(self, video_name): # sample data: s01_trial01.avi
+        data = self.detect_emotions_from_video(self.detector, self.DATA_PATH + video_name, sample_rate=2) # self, video_name, sample_rate, cv_model_name, data, write=False
+        video_name = video_name.split('.')[0] # Strip off any file extensions .avi
+        self.write_output(video_name, self.sample_rate, self.name, data, write=True)
 
-    def run(self, data_name): # "s01_trial01.avi"
-        data = self.detect_emotions_from_video(self.detector, self.DATA_PATH + data_name, sample_rate=2)
-        # detect_still_img(detector, read_img("3-people.jpg"))
-        data_name = data_name.split('.')[0] # Strip off any file extensions .avi
-        self.write_output(data_name, self.sample_rate, self.name, data, write=True)
-        # self, video_name, sample_rate, cv_model_name, data, write=False
-
-    def detect_still_img(self, image, visualize=False):
+    def detect_still_img(self, image, visualize=False): # sample data: 3-people.jpg confused-josh.jpg no-person.jpg sad-lady.jpg
     #     img1 = cv2.imread("tiger.jpg", 3)
     #     b,g,r = cv2.split(img)           # get b, g, r
     #     img = cv2.merge([r,g,b])     # switch it to r, g, b
@@ -40,7 +39,8 @@ class DefaultCVModel:
             return None
         
         if len(faces) > 1:
-            print("WARNING: {} faces detected... selecting largest".format(len(faces)))
+            if verbose:
+                print("WARNING: {} faces detected... selecting largest".format(len(faces)))
             sizes = []
             for face in faces:
                 box = face['box']
@@ -76,8 +76,8 @@ class DefaultCVModel:
         fps = video.get(cv2.CAP_PROP_FPS)
         
         assert fps >= sample_rate, "Error: FPS {} < Sample Rate {}".format(fps, sample_rate)
-        
-        print("Processing video {} with FPS: {} at Sample Rate: {} Hz".format(path, fps, sample_rate))
+        if verbose:
+            print("Processing video {} with FPS: {} at Sample Rate: {} Hz".format(path, fps, sample_rate))
         frame_skip = fps / sample_rate
         i = 0
         data = dict()
