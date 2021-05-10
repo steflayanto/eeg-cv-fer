@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from models.interface import AbstractModel
 
 import torch
 import torch.nn.functional as F
@@ -23,8 +23,10 @@ import copy
 import json
 
 
-class EEGDCNNModel:
-  def __init__(self):
+class EEGDCNNModel(AbstractModel):
+  DATA_PATH = "./uploads/dev/"
+
+  def __init__(self, sample_rate=2, data_frequency=128):
     model = nn.Sequential(
       nn.Conv2d(4, 32, [3, 1]),
       nn.ReLU(),
@@ -42,12 +44,18 @@ class EEGDCNNModel:
     )
     self.model = model
     self.model.load_state_dict(torch.load('./models/model_multi.pth', 'cpu'))
+    self.sample_rate = sample_rate
+    self.data_frequency = data_frequency
+    print("Initialized EEG DCNN Model with sample rate {} data freq {}".format(self.sample_rate, self.data_frequency))
 
   # data passed in is one trial with only the 32 channels with last 3 sec trimmed
   # period has to be a factor of the total clip length
   
-    
-  def run(self, data_path, data_frequency, sample_rate):
+  def run(self, data_path):
+    print("Running EEG DCNN Model")
+    self.run_eeg(self.DATA_PATH + data_path, self.data_frequency, self.sample_rate)
+
+  def run_eeg(self, data_path, data_frequency, sample_rate):
     with open(data_path, 'rb') as f:
       self.data = np.load(f)
     # data is 32 channel, 7680 (60 * 128)
@@ -84,7 +92,7 @@ class EEGDCNNModel:
             pcc_num = scipy.stats.pearsonr(data1, data2)[0]
             pcc_matrix[channel_num_i][channel_num_j] = pcc_num
             pcc_matrix[channel_num_j][channel_num_i] = pcc_num
-          index_mover += 1;
+          index_mover += 1
       binned_pcc_matrix[bin_num] = pcc_matrix
       final_data.append(binned_pcc_matrix)
     self.data = torch.tensor(final_data).float()
@@ -96,11 +104,13 @@ class EEGDCNNModel:
     json_dict = dict()
     json_dict["metadata"] = {"dataPath": "s01_trial01.npy", "eegLabelFrequency":"1", "eegModelName":"default"}
     json_dict["data"] = json_data
-    with open('./output/deafult-eeg-s01_trial01.json', "w+") as outfile: 
+    with open('./output/default-eeg-s01_trial01.json', "w+") as outfile: 
        json.dump(json_dict, outfile)
 
-test_run = EEGDCNNModel()
-test_run.run('./uploads/dev/s01_trial01.npy', 128, 1)
+
+if __name__ == "__main__":
+  test_run = EEGDCNNModel(sample_rate=1, data_frequency=128)
+  test_run.run('s01_trial01.npy')
 
 
 
