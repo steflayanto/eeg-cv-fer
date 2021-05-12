@@ -8,10 +8,10 @@ class AbstractModel:
     def __init__(self):
         pass
 
-    def run(self, data):
+    def run(self, data_path):
         pass
 
-class DefaultCVModel:
+class DefaultCVModel(AbstractModel):
     DATA_PATH = "./uploads/dev/"
     OUTPUT_PATH = "./output/"
 
@@ -21,11 +21,11 @@ class DefaultCVModel:
         self.sample_rate = sample_rate
 
 
-    def run(self, data_name): # "s01_trial01.avi"
-        data = self.detect_emotions_from_video(self.detector, self.DATA_PATH + data_name, sample_rate=2)
+    def run(self, data_path): # "s01_trial01.avi"
+        data = self.detect_emotions_from_video(self.detector, self.DATA_PATH + data_path, sample_rate=2)
         # detect_still_img(detector, read_img("3-people.jpg"))
-        data_name = data_name.split('.')[0] # Strip off any file extensions .avi
-        self.write_output(data_name, self.sample_rate, self.name, data, write=True)
+        data_path = data_path.split('.')[0] # Strip off any file extensions .avi
+        self.write_output(data_path, self.sample_rate, self.name, data, write=True)
         # self, video_name, sample_rate, cv_model_name, data, write=False
 
     def detect_still_img(self, image, visualize=False):
