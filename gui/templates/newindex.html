@@ -1,0 +1,32 @@
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/index.css') }}">
+<h1>EEG and CV Emotion Classification</h1>
+<h2>Please upload your files</h2>
+
+<form action="#">
+  <div class="input-file-container">  
+    <input class="input-file" id="my-file" type="file">
+    <label tabindex="0" for="my-file" class="input-file-trigger">File Name...</label>
+    <input type="submit">
+  </div>
+  <p class="file-return"></p>
+</form>
+<script>
+  document.querySelector("html").classList.add('js');
+
+var fileInput  = document.querySelector( ".input-file" ),  
+    button     = document.querySelector( ".input-file-trigger" ),
+    the_return = document.querySelector(".file-return");
+      
+button.addEventListener( "keydown", function( event ) {  
+    if ( event.keyCode == 13 || event.keyCode == 32 ) {  
+        fileInput.focus();  
+    }  
+});
+button.addEventListener( "click", function( event ) {
+   fileInput.focus();
+   return false;
+});  
+fileInput.addEventListener( "change", function( event ) {  
+    the_return.innerHTML = this.value;  
+});  
+</script>
