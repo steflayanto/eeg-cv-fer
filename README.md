@@ -15,7 +15,7 @@ Model Runner Usage:
 
 Example commands:
 
-`python modelRunner.py -n defaulteed -l 2 -f 128 -d s01_trial01.npy`
+`python modelRunner.py -n defaulteeg -l 2 -f 128 -d s01_trial01.npy`
 
 `python modelRunner.py -n defaultcv -l 2 -d s01_trial01.avi`
 
