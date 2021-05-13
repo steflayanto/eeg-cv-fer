@@ -1,155 +1,39 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>{{ title }}</title>
-    <script src='https://cdn.jsdelivr.net/npm/chart.js@3.2.1/dist/chart.min.js'></script>
-  </head>
-<style>
-  .center { margin: 0 auto; width: 400px; }
-</style>
-<body>
-<div class="container">
-  <div class="row">
-    <div class="col">
-      <form action="/" method="POST" enctype="multipart/form-data">
-        <div class="form-group">
-          <div class="custom-file">
-            <input type="file" class="custom-file-input" name="image" id="image">
-          </div>
-        </div>
-        <button type="submit" class="btn btn-primary">Upload</button>
-      </form>
-      <div style="width: 80%; margin: auto">
-      <div style="text-align: center">
-        <video width="800" height ="400" autoplay muted>
-          <source src="{{ video_path }}" type="video/mp4">
-        </video>
-      </div>
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/index.css') }}">
+<h1>EEG and CV Emotion Classification</h1>
+<h2>Please upload your files</h2>
 
-      <br>
-      <div width="400" height="300" style="float: left">
-      <canvas id="eeg" width="600" height="400"></canvas>
-      </div>
-      <div width="400" height="300" style="float: right">
-      <canvas id="cv" width="600" height="400"></canvas>
-      </div>
-      </div>
-    </div>
+<form action="/" method="POST" enctype="multipart/form-data">
+  <div class="input-file-container">  
+    <input class="input-file" id="my-file" type="file" name="file">
+    <label tabindex="0" for="my-file" class="input-file-trigger">File Name...</label>
+    <p class="file-return"></p>
+    <input type="submit" id="my-submit" hidden>
+    <div></div>
+    <label tabindex="0" for="my-submit" class="submit-file-trigger">Submit File</label>
+
   </div>
-</div>
 
+</form>
+<form method="get" action="/run">
+  <button type="submit">Run Models</button>
+</form>
 <script>
-  // Get the context of the canvas element we want to select
-  var eegData = [2, 2, 0, 0, 1, 0, 2, 3, 2, 1, 3, 3, 0, 0, 0, 3, 0, 0, 3, 1, 2, 3, 3, 3, 3, 3, 0, 0, 0, 0, 3, 0, 2, 0, 3, 1, 2, 3, 0, 3, 3, 1, 2, 0, 0, 0, 0, 3, 2, 2, 0, 1, 0, 3, 3, 0, 2, 2, 2, 0];
-  var cvData = [{"angry": 0.02, "disgust": 0.0, "fear": 0.01, "happy": 0.03, "sad": 0.24, "surprise": 0.0, "neutral": 0.69}, {"angry": 0.03, "disgust": 0.0, "fear": 0.01, "happy": 0.01, "sad": 0.25, "surprise": 0.0, "neutral": 0.69}, {"angry": 0.09, "disgust": 0.0, "fear": 0.03, "happy": 0.07, "sad": 0.37, "surprise": 0.0, "neutral": 0.44}, {"angry": 0.06, "disgust": 0.0, "fear": 0.03, "happy": 0.03, "sad": 0.45, "surprise": 0.0, "neutral": 0.44}, {"angry": 0.04, "disgust": 0.0, "fear": 0.01, "happy": 0.06, "sad": 0.34, "surprise": 0.0, "neutral": 0.54}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.05, "sad": 0.18, "surprise": 0.0, "neutral": 0.72}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.03, "sad": 0.24, "surprise": 0.0, "neutral": 0.68}, {"angry": 0.04, "disgust": 0.0, "fear": 0.02, "happy": 0.05, "sad": 0.27, "surprise": 0.0, "neutral": 0.62}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.02, "sad": 0.27, "surprise": 0.0, "neutral": 0.65}, {"angry": 0.05, "disgust": 0.0, "fear": 0.02, "happy": 0.08, "sad": 0.16, "surprise": 0.01, "neutral": 0.68}, {"angry": 0.04, "disgust": 0.0, "fear": 0.02, "happy": 0.08, "sad": 0.19, "surprise": 0.01, "neutral": 0.66}, {"angry": 0.03, "disgust": 0.0, "fear": 0.01, "happy": 0.03, "sad": 0.2, "surprise": 0.0, "neutral": 0.72}, {"angry": 0.03, "disgust": 0.0, "fear": 0.04, "happy": 0.03, "sad": 0.31, "surprise": 0.0, "neutral": 0.59}, {"angry": 0.04, "disgust": 0.0, "fear": 0.03, "happy": 0.05, "sad": 0.24, "surprise": 0.0, "neutral": 0.63}, {"angry": 0.06, "disgust": 0.0, "fear": 0.02, "happy": 0.04, "sad": 0.23, "surprise": 0.01, "neutral": 0.64}, {"angry": 0.06, "disgust": 0.0, "fear": 0.03, "happy": 0.07, "sad": 0.3, "surprise": 0.0, "neutral": 0.54}, {"angry": 0.03, "disgust": 0.0, "fear": 0.03, "happy": 0.05, "sad": 0.19, "surprise": 0.0, "neutral": 0.7}, {"angry": 0.04, "disgust": 0.0, "fear": 0.02, "happy": 0.06, "sad": 0.38, "surprise": 0.0, "neutral": 0.49}, {"angry": 0.02, "disgust": 0.0, "fear": 0.02, "happy": 0.04, "sad": 0.24, "surprise": 0.0, "neutral": 0.67}, {"angry": 0.03, "disgust": 0.0, "fear": 0.03, "happy": 0.04, "sad": 0.26, "surprise": 0.0, "neutral": 0.63}, {"angry": 0.04, "disgust": 0.0, "fear": 0.02, "happy": 0.05, "sad": 0.36, "surprise": 0.0, "neutral": 0.53}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.03, "sad": 0.27, "surprise": 0.0, "neutral": 0.65}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.03, "sad": 0.39, "surprise": 0.0, "neutral": 0.52}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.11, "sad": 0.26, "surprise": 0.0, "neutral": 0.58}, {"angry": 0.04, "disgust": 0.0, "fear": 0.02, "happy": 0.02, "sad": 0.39, "surprise": 0.0, "neutral": 0.54}, {"angry": 0.02, "disgust": 0.0, "fear": 0.02, "happy": 0.06, "sad": 0.2, "surprise": 0.0, "neutral": 0.7}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.09, "sad": 0.26, "surprise": 0.0, "neutral": 0.6}, {"angry": 0.04, "disgust": 0.0, "fear": 0.02, "happy": 0.11, "sad": 0.24, "surprise": 0.0, "neutral": 0.6}, {"angry": 0.04, "disgust": 0.0, "fear": 0.02, "happy": 0.04, "sad": 0.21, "surprise": 0.0, "neutral": 0.69}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.08, "sad": 0.29, "surprise": 0.0, "neutral": 0.58}, {"angry": 0.03, "disgust": 0.0, "fear": 0.01, "happy": 0.01, "sad": 0.36, "surprise": 0.0, "neutral": 0.59}, {"angry": 0.04, "disgust": 0.0, "fear": 0.02, "happy": 0.08, "sad": 0.31, "surprise": 0.0, "neutral": 0.55}, {"angry": 0.06, "disgust": 0.0, "fear": 0.02, "happy": 0.08, "sad": 0.16, "surprise": 0.01, "neutral": 0.66}, {"angry": 0.05, "disgust": 0.0, "fear": 0.02, "happy": 0.04, "sad": 0.24, "surprise": 0.0, "neutral": 0.65}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.04, "sad": 0.21, "surprise": 0.0, "neutral": 0.7}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.07, "sad": 0.29, "surprise": 0.0, "neutral": 0.6}, {"angry": 0.05, "disgust": 0.0, "fear": 0.01, "happy": 0.08, "sad": 0.23, "surprise": 0.0, "neutral": 0.63}, {"angry": 0.02, "disgust": 0.0, "fear": 0.01, "happy": 0.04, "sad": 0.28, "surprise": 0.0, "neutral": 0.65}, {"angry": 0.03, "disgust": 0.0, "fear": 0.03, "happy": 0.07, "sad": 0.22, "surprise": 0.0, "neutral": 0.64}, {"angry": 0.04, "disgust": 0.0, "fear": 0.04, "happy": 0.02, "sad": 0.29, "surprise": 0.0, "neutral": 0.62}, {"angry": 0.03, "disgust": 0.0, "fear": 0.03, "happy": 0.05, "sad": 0.24, "surprise": 0.01, "neutral": 0.65}, {"angry": 0.05, "disgust": 0.0, "fear": 0.02, "happy": 0.04, "sad": 0.17, "surprise": 0.01, "neutral": 0.7}, {"angry": 0.04, "disgust": 0.0, "fear": 0.02, "happy": 0.07, "sad": 0.28, "surprise": 0.0, "neutral": 0.58}, {"angry": 0.05, "disgust": 0.0, "fear": 0.03, "happy": 0.01, "sad": 0.16, "surprise": 0.0, "neutral": 0.75}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.06, "sad": 0.29, "surprise": 0.0, "neutral": 0.59}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.03, "sad": 0.13, "surprise": 0.0, "neutral": 0.79}, {"angry": 0.03, "disgust": 0.0, "fear": 0.01, "happy": 0.01, "sad": 0.14, "surprise": 0.0, "neutral": 0.83}, {"angry": 0.02, "disgust": 0.0, "fear": 0.01, "happy": 0.01, "sad": 0.15, "surprise": 0.0, "neutral": 0.82}, {"angry": 0.02, "disgust": 0.0, "fear": 0.01, "happy": 0.01, "sad": 0.26, "surprise": 0.0, "neutral": 0.71}, {"angry": 0.06, "disgust": 0.0, "fear": 0.02, "happy": 0.1, "sad": 0.33, "surprise": 0.0, "neutral": 0.49}, {"angry": 0.03, "disgust": 0.0, "fear": 0.03, "happy": 0.04, "sad": 0.21, "surprise": 0.0, "neutral": 0.7}, {"angry": 0.06, "disgust": 0.0, "fear": 0.04, "happy": 0.04, "sad": 0.35, "surprise": 0.0, "neutral": 0.51}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.04, "sad": 0.35, "surprise": 0.0, "neutral": 0.56}, {"angry": 0.05, "disgust": 0.0, "fear": 0.02, "happy": 0.02, "sad": 0.32, "surprise": 0.0, "neutral": 0.6}, {"angry": 0.02, "disgust": 0.0, "fear": 0.01, "happy": 0.03, "sad": 0.13, "surprise": 0.0, "neutral": 0.81}, {"angry": 0.07, "disgust": 0.0, "fear": 0.03, "happy": 0.05, "sad": 0.26, "surprise": 0.01, "neutral": 0.59}, {"angry": 0.05, "disgust": 0.0, "fear": 0.02, "happy": 0.03, "sad": 0.33, "surprise": 0.0, "neutral": 0.57}, {"angry": 0.04, "disgust": 0.0, "fear": 0.02, "happy": 0.05, "sad": 0.25, "surprise": 0.0, "neutral": 0.63}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.07, "sad": 0.31, "surprise": 0.01, "neutral": 0.56}, {"angry": 0.03, "disgust": 0.0, "fear": 0.03, "happy": 0.04, "sad": 0.19, "surprise": 0.0, "neutral": 0.7}, {"angry": 0.04, "disgust": 0.0, "fear": 0.02, "happy": 0.07, "sad": 0.3, "surprise": 0.0, "neutral": 0.56}, {"angry": 0.03, "disgust": 0.0, "fear": 0.01, "happy": 0.01, "sad": 0.17, "surprise": 0.0, "neutral": 0.78}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.06, "sad": 0.23, "surprise": 0.0, "neutral": 0.65}, {"angry": 0.03, "disgust": 0.0, "fear": 0.01, "happy": 0.03, "sad": 0.31, "surprise": 0.0, "neutral": 0.61}, {"angry": 0.06, "disgust": 0.0, "fear": 0.02, "happy": 0.07, "sad": 0.27, "surprise": 0.0, "neutral": 0.58}, {"angry": 0.04, "disgust": 0.0, "fear": 0.02, "happy": 0.05, "sad": 0.21, "surprise": 0.0, "neutral": 0.69}, {"angry": 0.02, "disgust": 0.0, "fear": 0.01, "happy": 0.04, "sad": 0.32, "surprise": 0.0, "neutral": 0.61}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.08, "sad": 0.34, "surprise": 0.0, "neutral": 0.53}, {"angry": 0.02, "disgust": 0.0, "fear": 0.02, "happy": 0.03, "sad": 0.26, "surprise": 0.0, "neutral": 0.66}, {"angry": 0.07, "disgust": 0.0, "fear": 0.03, "happy": 0.02, "sad": 0.31, "surprise": 0.0, "neutral": 0.57}, {"angry": 0.02, "disgust": 0.0, "fear": 0.01, "happy": 0.02, "sad": 0.16, "surprise": 0.0, "neutral": 0.79}, {"angry": 0.01, "disgust": 0.0, "fear": 0.01, "happy": 0.03, "sad": 0.11, "surprise": 0.0, "neutral": 0.83}, {"angry": 0.02, "disgust": 0.0, "fear": 0.02, "happy": 0.02, "sad": 0.14, "surprise": 0.0, "neutral": 0.79}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.04, "sad": 0.21, "surprise": 0.0, "neutral": 0.7}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.04, "sad": 0.16, "surprise": 0.01, "neutral": 0.75}, {"angry": 0.03, "disgust": 0.0, "fear": 0.01, "happy": 0.05, "sad": 0.12, "surprise": 0.0, "neutral": 0.79}, {"angry": 0.02, "disgust": 0.0, "fear": 0.02, "happy": 0.05, "sad": 0.35, "surprise": 0.0, "neutral": 0.56}, {"angry": 0.04, "disgust": 0.0, "fear": 0.02, "happy": 0.05, "sad": 0.24, "surprise": 0.0, "neutral": 0.65}, {"angry": 0.03, "disgust": 0.0, "fear": 0.01, "happy": 0.03, "sad": 0.23, "surprise": 0.0, "neutral": 0.69}, {"angry": 0.02, "disgust": 0.0, "fear": 0.02, "happy": 0.03, "sad": 0.13, "surprise": 0.01, "neutral": 0.79}, {"angry": 0.02, "disgust": 0.0, "fear": 0.02, "happy": 0.02, "sad": 0.13, "surprise": 0.0, "neutral": 0.81}, {"angry": 0.02, "disgust": 0.0, "fear": 0.02, "happy": 0.03, "sad": 0.23, "surprise": 0.0, "neutral": 0.7}, {"angry": 0.02, "disgust": 0.0, "fear": 0.02, "happy": 0.04, "sad": 0.23, "surprise": 0.0, "neutral": 0.68}, {"angry": 0.03, "disgust": 0.0, "fear": 0.03, "happy": 0.03, "sad": 0.25, "surprise": 0.0, "neutral": 0.66}, {"angry": 0.03, "disgust": 0.0, "fear": 0.03, "happy": 0.03, "sad": 0.15, "surprise": 0.0, "neutral": 0.77}, {"angry": 0.02, "disgust": 0.0, "fear": 0.02, "happy": 0.04, "sad": 0.17, "surprise": 0.01, "neutral": 0.75}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.03, "sad": 0.16, "surprise": 0.0, "neutral": 0.77}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.03, "sad": 0.15, "surprise": 0.01, "neutral": 0.77}, {"angry": 0.02, "disgust": 0.0, "fear": 0.02, "happy": 0.05, "sad": 0.15, "surprise": 0.01, "neutral": 0.75}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.03, "sad": 0.15, "surprise": 0.0, "neutral": 0.78}, {"angry": 0.02, "disgust": 0.0, "fear": 0.02, "happy": 0.02, "sad": 0.16, "surprise": 0.0, "neutral": 0.78}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.03, "sad": 0.17, "surprise": 0.0, "neutral": 0.75}, {"angry": 0.02, "disgust": 0.0, "fear": 0.02, "happy": 0.02, "sad": 0.14, "surprise": 0.0, "neutral": 0.79}, {"angry": 0.07, "disgust": 0.0, "fear": 0.04, "happy": 0.07, "sad": 0.32, "surprise": 0.01, "neutral": 0.5}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.02, "sad": 0.1, "surprise": 0.0, "neutral": 0.83}, {"angry": 0.04, "disgust": 0.0, "fear": 0.03, "happy": 0.03, "sad": 0.17, "surprise": 0.01, "neutral": 0.72}, {"angry": 0.02, "disgust": 0.0, "fear": 0.02, "happy": 0.04, "sad": 0.22, "surprise": 0.0, "neutral": 0.7}, {"angry": 0.02, "disgust": 0.0, "fear": 0.02, "happy": 0.03, "sad": 0.17, "surprise": 0.0, "neutral": 0.77}, {"angry": 0.04, "disgust": 0.0, "fear": 0.02, "happy": 0.03, "sad": 0.18, "surprise": 0.0, "neutral": 0.74}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.05, "sad": 0.19, "surprise": 0.0, "neutral": 0.72}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.03, "sad": 0.21, "surprise": 0.0, "neutral": 0.72}, {"angry": 0.04, "disgust": 0.0, "fear": 0.03, "happy": 0.03, "sad": 0.21, "surprise": 0.01, "neutral": 0.69}, {"angry": 0.02, "disgust": 0.0, "fear": 0.02, "happy": 0.05, "sad": 0.16, "surprise": 0.0, "neutral": 0.76}, {"angry": 0.03, "disgust": 0.0, "fear": 0.01, "happy": 0.04, "sad": 0.12, "surprise": 0.0, "neutral": 0.8}, {"angry": 0.02, "disgust": 0.0, "fear": 0.02, "happy": 0.06, "sad": 0.24, "surprise": 0.0, "neutral": 0.66}, {"angry": 0.02, "disgust": 0.0, "fear": 0.0, "happy": 0.06, "sad": 0.11, "surprise": 0.0, "neutral": 0.81}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.04, "sad": 0.13, "surprise": 0.01, "neutral": 0.78}, {"angry": 0.02, "disgust": 0.0, "fear": 0.02, "happy": 0.06, "sad": 0.13, "surprise": 0.01, "neutral": 0.77}, {"angry": 0.04, "disgust": 0.0, "fear": 0.03, "happy": 0.04, "sad": 0.4, "surprise": 0.0, "neutral": 0.49}, {"angry": 0.04, "disgust": 0.0, "fear": 0.03, "happy": 0.06, "sad": 0.4, "surprise": 0.01, "neutral": 0.47}, {"angry": 0.03, "disgust": 0.0, "fear": 0.01, "happy": 0.12, "sad": 0.22, "surprise": 0.0, "neutral": 0.61}, {"angry": 0.01, "disgust": 0.0, "fear": 0.01, "happy": 0.06, "sad": 0.11, "surprise": 0.0, "neutral": 0.8}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.03, "sad": 0.15, "surprise": 0.0, "neutral": 0.76}, {"angry": 0.04, "disgust": 0.0, "fear": 0.02, "happy": 0.03, "sad": 0.16, "surprise": 0.01, "neutral": 0.74}, {"angry": 0.04, "disgust": 0.0, "fear": 0.03, "happy": 0.03, "sad": 0.17, "surprise": 0.01, "neutral": 0.73}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.09, "sad": 0.15, "surprise": 0.01, "neutral": 0.72}, {"angry": 0.03, "disgust": 0.0, "fear": 0.01, "happy": 0.09, "sad": 0.12, "surprise": 0.0, "neutral": 0.74}, {"angry": 0.02, "disgust": 0.0, "fear": 0.02, "happy": 0.06, "sad": 0.2, "surprise": 0.0, "neutral": 0.69}, {"angry": 0.02, "disgust": 0.0, "fear": 0.01, "happy": 0.04, "sad": 0.1, "surprise": 0.0, "neutral": 0.83}, {"angry": 0.03, "disgust": 0.0, "fear": 0.02, "happy": 0.04, "sad": 0.24, "surprise": 0.0, "neutral": 0.67}];
+  document.querySelector("html").classList.add('js');
 
-  var i = 0;
-  var scatterOptions = {
-    responsive: false,
-    showLine: true,
-    scales: {
-      y : {
-              max : 1.5,    
-              min : -1.5,
-              title: {
-                display: true,
-                text: 'Arousal'
-              }
-      },
-      x : {
-              max : 1.5,    
-              min : -1.5,
-              title: {
-                display: true,
-                text: 'Valence'
-              }
-      }
-    },
-    plugins: {
-      legend : {
-        display : false
-      }
-    }
-  };
-  const datascatter = {
-  datasets: [{
-    data: [{
-      x: 0,
-      y: 0
-    }],
-    backgroundColor: 'rgb(255, 99, 132)'
-  }],
-};
-
-  var eegChartSource= document.getElementById("eeg").getContext("2d");
-  var eegChart = new Chart(eegChartSource, {
-  type:'scatter', 
-  data: datascatter,
-  options: scatterOptions
-  });
-  var cvChartSource= document.getElementById("cv").getContext("2d");
-  const datacv = {
-    labels: ["Anger", "Disgust", "Fear", "Happy", "Sad", "Surprise", "Neutral"],
-    datasets: [{
-      data: [.5,.5,.5,.5,.5,.5,.5]}],
-      backgroundColor: [
-      'rgba(255, 99, 132, 0.2)',
-      'rgba(255, 159, 64, 0.2)',
-      'rgba(255, 205, 86, 0.2)',
-      'rgba(75, 192, 192, 0.2)',
-      'rgba(54, 162, 235, 0.2)',
-      'rgba(153, 102, 255, 0.2)',
-      'rgba(201, 203, 207, 0.2)'
-    ],
-    borderWidth: 1
-  };
-  var cvChart = new Chart(cvChartSource, {
-  type:'bar', 
-  data: datacv,
-  options: {
-    responsive: true,
-    scales: {
-      y: {
-        max: 1.0,
-        beginAtZero: true
-      }
-    }
-  },
-  plugins: {
-      legend : {
-        display : false
-      }
-    }
-  });
-
-  /*setInterval( function() {
-    if (i < eegData.length) {
-      let curEEG = eegData[i];
-      if (curEEG == 0) {
-        eegChart.data.datasets[0].data[0].x = .8;
-        eegChart.data.datasets[0].data[0].y = .8;
-      }
-      if (curEEG == 1) {
-        eegChart.data.datasets[0].data[0].x = -.8;
-        eegChart.data.datasets[0].data[0].y = .8;
-      }
-      if (curEEG == 2) {
-        eegChart.data.datasets[0].data[0].x = -.8;
-        eegChart.data.datasets[0].data[0].y = -.8;
-      }
-      if (curEEG == 3) {
-        eegChart.data.datasets[0].data[0].x = .8;
-        eegChart.data.datasets[0].data[0].y = -.8;
-      }
-      cvChart.data.datasets[0].data = Object.values(cvData[i]);
-    }
-    i++;
-
-
-    eegChart.update();
-    cvChart.update();
-  }, 1000);*/
+var fileInput  = document.querySelector( ".input-file" ),  
+    button     = document.querySelector( ".input-file-trigger" ),
+    the_return = document.querySelector(".file-return");
+      
+button.addEventListener( "keydown", function( event ) {  
+    if ( event.keyCode == 13 || event.keyCode == 32 ) {  
+        fileInput.focus();  
+    }  
+});
+button.addEventListener( "click", function( event ) {
+   fileInput.focus();
+   return false;
+});  
+fileInput.addEventListener( "change", function( event ) {  
+    the_return.innerHTML = this.value;  
+});  
 </script>
-</body>
-</html>

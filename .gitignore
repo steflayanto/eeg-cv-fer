@@ -130,4 +130,4 @@ dmypy.json
 
 #File uploads
 uploads/
-static/
+flask_session/
