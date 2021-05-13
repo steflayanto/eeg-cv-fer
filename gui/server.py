@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, session
+from flask import Flask, request, render_template, session, send_from_directory
 from flask_session import Session
 import subprocess
 import sys
@@ -14,7 +14,7 @@ Session(app)
 
 @app.route('/')
 def index():
-    return render_template('newindex.html', eeg_valid=("eeg_path" in session), cv_valid = ("cv_path" in session))
+    return render_template('index.html', eeg_valid=("eeg_path" in session), cv_valid = ("cv_path" in session))
 
 @app.route('/',methods=["POST"])
 def upload_file():
@@ -31,24 +31,24 @@ def upload_file():
         subprocess.call([sys.executable, '../modelRunner.py', '-n', 'defaulteeg', '-d', f'uploads/{uploaded_file.filename}'])
         session["eeg_path"] = f"./output/default-eeg-{just_name}.json"
     
-    return render_template('newindex.html', eeg_valid=("eeg_path" in session), cv_valid = ("cv_path" in session))
+    return render_template('index.html', eeg_valid=("eeg_path" in session), cv_valid = ("cv_path" in session))
 
 @app.route('/run')
 def run():
     if not "eeg_path" in session and not "cv_path" in session:
-        return render_template('index.html', eeg_valid=("eeg_path" in session), cv_valid = ("cv_path" in session))
+        return render_template('index.html', eeg_valid = ("eeg_path" in session), cv_valid = ("cv_path" in session))
     elif not "eeg_path" in session:
         cv_data = ""
         with open(session["cv_path"]) as fd:
             cv_data = json.load(fd)
             print(cv_data)
-        return render_template('cvplayback.html', cv_data=cv_data, video_path=session["raw_video_path"])
+        return render_template('cvplayback.html', cv_data=json.dumps(cv_data), video_path=session["raw_video_path"])
     elif not "cv_path" in session:
         eeg_data = ""
         with open(session["eeg_path"]) as fd:
             eeg_data = json.load(fd)
             print(eeg_data)
-        return render_template('eegplayback.html', eeg_data=eeg_data)
+        return render_template('eegplayback.html', eeg_data=json.dumps(eeg_data))
     else:
         cv_data = ""
         eeg_data = ""
@@ -58,11 +58,11 @@ def run():
         with open(session["eeg_path"]) as fd:
             eeg_data = json.load(fd)
             print(eeg_data)
-        return render_template('playback.html', eeg_data=eeg_data, cv_data=cv_data, video_path=session["raw_video_path"])
+        return render_template('playback.html', eeg_data=json.dumps(eeg_data), cv_data=json.dumps(cv_data), video_path=session["raw_video_path"])
 
-@app.route('/',methods=["GET"])
-def get():
-    return send_file(os.path.join("uploads/",session["raw_video_path"]))
+@app.route('/uploads/<filename>')
+def send_file(filename):
+    return send_from_directory("./uploads/", filename)
 
 if __name__ == '__main__':
     app.run(port = 5000, debug=True)
