@@ -16,7 +16,7 @@ Session(app)
 def index():
     return render_template('index.html', eeg_valid=("eeg_path" in session), cv_valid = ("cv_path" in session))
 
-@app.route('/',methods=["POST"])
+@app.route('/',methods=["POST"]) 
 def upload_file():
     uploaded_file = request.files['file']
     if 'video' in uploaded_file.content_type:
