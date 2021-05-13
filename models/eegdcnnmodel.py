@@ -21,12 +21,12 @@ import scipy
 import time
 import copy
 import json
-
+from pathlib import Path
 
 class EEGDCNNModel(AbstractModel):
-  DATA_PATH = "./uploads/dev/"
+  DATA_PATH = "./"
 
-  def __init__(self, sample_rate=2, data_frequency=128):
+  def __init__(self, sample_rate=1, data_frequency=128):
     model = nn.Sequential(
       nn.Conv2d(4, 32, [3, 1]),
       nn.ReLU(),
@@ -43,7 +43,8 @@ class EEGDCNNModel(AbstractModel):
       nn.Linear(256, 4)
     )
     self.model = model
-    self.model.load_state_dict(torch.load('./models/model_multi.pth', 'cpu'))
+    base_path = Path(__file__).parent
+    self.model.load_state_dict(torch.load((base_path / 'model_multi.pth').resolve(), 'cpu'))
     self.sample_rate = sample_rate
     self.data_frequency = data_frequency
     print("Initialized EEG DCNN Model with sample rate {} data freq {}".format(self.sample_rate, self.data_frequency))
@@ -107,26 +108,6 @@ class EEGDCNNModel(AbstractModel):
     with open('./output/default-eeg-s01_trial01.json', "w+") as outfile: 
        json.dump(json_dict, outfile)
 
-
 if __name__ == "__main__":
   test_run = EEGDCNNModel(sample_rate=1, data_frequency=128)
   test_run.run('s01_trial01.npy')
-
-
-
-# data = dict()
-# for i in range(len(arr)):
-#   data[i] = int(arr[i])
-# json_dict = dict()
-# json_dict["metadata"] = {"dataPath": "s01_trial01.npy", "eegLabelFrequency":"1", "eegModelName":"default"}
-# json_dict["data"] = data
-# print(json_dict)
-# with open('/content/drive/MyDrive/CSE 481 Capstone/eegModel-s01_trial01.json', "w+") as outfile: 
-#    json.dump(json_dict, outfile)
-
-# x = pickle.load(open("/content/drive/MyDrive/CSE 481 Capstone/data_preprocessed_python/s01.dat", 'rb'), encoding = 'latin1')
-# sub_data = x['data']
-# sub_eeg = sub_data[:, :32, 3 * 128:]  #indexing EEG signals from physiological data
-# sub_eeg = np.array(sub_eeg)
-# print(sub_eeg.shape)
-# np.save("/content/drive/MyDrive/CSE 481 Capstone/data00)", sub_eeg[0])

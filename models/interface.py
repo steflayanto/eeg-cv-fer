@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import cv2
 import json
 import os
+from pathlib import Path
 
 class AbstractModel:
     def __init__(self):
@@ -12,7 +13,7 @@ class AbstractModel:
         pass
 
 class DefaultCVModel(AbstractModel):
-    DATA_PATH = "./uploads/dev/"
+    DATA_PATH = "./"
     OUTPUT_PATH = "./output/"
 
     def __init__(self, sample_rate=2):
@@ -22,9 +23,9 @@ class DefaultCVModel(AbstractModel):
 
 
     def run(self, data_path): # "s01_trial01.avi"
-        data = self.detect_emotions_from_video(self.detector, self.DATA_PATH + data_path, sample_rate=2)
+        data = self.detect_emotions_from_video(self.detector, self.DATA_PATH + data_path, sample_rate=1)
         # detect_still_img(detector, read_img("3-people.jpg"))
-        data_path = data_path.split('.')[0] # Strip off any file extensions .avi
+        data_path = Path(data_path).stem 
         self.write_output(data_path, self.sample_rate, self.name, data, write=True)
         # self, video_name, sample_rate, cv_model_name, data, write=False
 
@@ -123,10 +124,8 @@ class DefaultCVModel(AbstractModel):
     #     json_object = json.dumps(json_dict, indent = 4)  
     #     print(json_object)
         if write:
-            with open(self.OUTPUT_PATH + "{}-{}.json".format(cv_model_name, video_name), "w+") as outfile: 
+            with open(self.OUTPUT_PATH + f"{cv_model_name}-{video_name}.json", "w+") as outfile: 
                 json.dump(json_dict, outfile)
-
-
 
 def read_img(img_path):
     return plt.imread(DATA_PATH + img_path)
@@ -135,11 +134,6 @@ def read_img(img_path):
 #     x1, y1 = box[0]
 #     x2, y2 = box[2]
 #     return (x2 - x1) * (y2 - y1)
-
-
-    
-    
-
 
 if __name__ == '__main__':
     # detector = FER(mtcnn=True)
