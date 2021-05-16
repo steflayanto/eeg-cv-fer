@@ -98,3 +98,43 @@ h2 + P {
   text-decoration: none;
   color: #1ABC9C;
 }
+
+@import "compass/css3";
+
+/* I was trying to implement this https://codepen.io/tbugai/pen/GJojI */
+
+body {
+  margin: 25px;
+}
+
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.status .yes:before {
+  background-color: #94E185;
+  border-color: #78D965;
+  box-shadow: 0px 0px 4px 1px #94E185;
+}
+
+.status .no:before {
+  background-color: #C9404D;
+  border-color: #C42C3B;
+  box-shadow: 0px 0px 4px 1px #C9404D;
+}
+
+.status :before {
+  content: ' ';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 10px;
+  border: 1px solid #000;
+  border-radius: 7px;
+}
+
+  
+  

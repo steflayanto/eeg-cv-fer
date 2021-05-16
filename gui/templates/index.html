@@ -2,6 +2,19 @@
 <h1>EEG and CV Emotion Classification</h1>
 <h2>Please upload your files</h2>
 
+<ul>
+  {% if eeg_valid ==  "True" %}
+  <li class="status-yes">EEG File Uploaded</li>
+  {% else %}
+  <li class="status-no">EEG File Not Uploaded</li>
+  {%  endif %}
+  {% if cv_valid ==  "True" %}
+  <li class="status-yes">CV File Uploaded</li>
+  {% else %}
+  <li class="status-no">CV File Not Uploaded</li>
+  {%  endif %}
+</ul>
+
 <form action="/" method="POST" enctype="multipart/form-data">
   <div class="input-file-container">  
     <input class="input-file" id="my-file" type="file" name="file">
