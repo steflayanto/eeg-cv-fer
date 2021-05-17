@@ -114,19 +114,19 @@ ul {
   list-style: none;
 }
 
-.status .yes:before {
+.status-yes {
   background-color: #94E185;
   border-color: #78D965;
   box-shadow: 0px 0px 4px 1px #94E185;
 }
 
-.status .no:before {
+.status-no {
   background-color: #C9404D;
   border-color: #C42C3B;
   box-shadow: 0px 0px 4px 1px #C9404D;
 }
 
-.status :before {
+.status {
   content: ' ';
   display: inline-block;
   width: 7px;
