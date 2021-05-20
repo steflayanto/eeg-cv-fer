@@ -45,6 +45,7 @@ class EEGDCNNModel(AbstractModel):
     self.model = model
     base_path = Path(__file__).parent
     self.model.load_state_dict(torch.load((base_path / 'model_multi.pth').resolve(), 'cpu'))
+    self.model.eval()
     self.sample_rate = sample_rate
     self.data_frequency = data_frequency
     print("Initialized EEG DCNN Model with sample rate {} data freq {}".format(self.sample_rate, self.data_frequency))
@@ -62,15 +63,16 @@ class EEGDCNNModel(AbstractModel):
     # data is 32 channel, 7680 (60 * 128)
     channels_total = self.data.shape[0]
     time_total = self.data.shape[1]
-    windows = int((time_total / data_frequency) / sample_rate)
+    windows = int((time_total / data_frequency) * sample_rate)
     final_data = []
-    for i in range(windows):
-      time_window = self.data[:, sample_rate * data_frequency * i: sample_rate * data_frequency * (i + 1)]
+    train_sliding_window = 8
+    for i in range(windows - train_sliding_window):
+      time_window = self.data[:, int((data_frequency * i) / sample_rate): int((data_frequency * (i + train_sliding_window)) / sample_rate)]
       transformed_channel = []
       for channel_num in range(channels_total):
         channel_data = time_window[channel_num]
         fft_channel = np.abs(rfft(channel_data))
-        fftfreq_channel = rfftfreq(channel_data.size, 1/ 128)
+        fftfreq_channel = rfftfreq(channel_data.size, 1/ data_frequency)
         one_freq = np.where(fftfreq_channel == 1)[0][0]
         eight_freq = np.where(fftfreq_channel == 8)[0][0]
         fourteen_freq = np.where(fftfreq_channel == 14)[0][0]
@@ -95,6 +97,8 @@ class EEGDCNNModel(AbstractModel):
             pcc_matrix[channel_num_j][channel_num_i] = pcc_num
           index_mover += 1
       binned_pcc_matrix[bin_num] = pcc_matrix
+      final_data.append(binned_pcc_matrix)
+    for i in range(min(windows, train_sliding_window)):
       final_data.append(binned_pcc_matrix)
     self.data = torch.tensor(final_data).float()
     output = self.model(self.data)
