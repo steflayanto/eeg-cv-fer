@@ -1,0 +1,78 @@
+{{ errors | safe }}
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>{{ title }}</title>
+    <script src='https://cdn.jsdelivr.net/npm/chart.js@3.2.1/dist/chart.min.js'></script>
+  </head>
+<style>
+  .center { margin: 0 auto; width: 400px; }
+</style>
+<body>
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <div style="width: 80%; margin: auto">
+      <div style="text-align: center">
+        <video width="800" height ="400" autoplay muted>
+          <source src="{{ video_path }}" type="video/mp4">
+        </video>
+      <div width="600" height="400" style="float: center">
+      <canvas id="cv" width="600" height="400" style="display: inline"></canvas>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Get the context of the canvas element we want to select
+  var rawCVData = JSON.parse('{{ cv_data|safe }}');
+  cvData = Object.values(rawCVData.data)
+  var i = 0;
+
+  var cvChartSource= document.getElementById("cv").getContext("2d");
+  const datacv = {
+    labels: ["Anger", "Disgust", "Fear", "Happy", "Sad", "Surprise", "Neutral"],
+    datasets: [{
+      data: [.5,.5,.5,.5,.5,.5,.5]}],
+      backgroundColor: [
+      'rgba(255, 99, 132, 0.2)',
+      'rgba(255, 159, 64, 0.2)',
+      'rgba(255, 205, 86, 0.2)',
+      'rgba(75, 192, 192, 0.2)',
+      'rgba(54, 162, 235, 0.2)',
+      'rgba(153, 102, 255, 0.2)',
+      'rgba(201, 203, 207, 0.2)'
+    ],
+    borderWidth: 1
+  };
+  var cvChart = new Chart(cvChartSource, {
+  type:'bar', 
+  data: datacv,
+  options: {
+    responsive: false,
+    scales: {
+      y: {
+        max: 1.0,
+        beginAtZero: true
+      }
+    }
+  },
+  plugins: {
+      legend : {
+        display : false
+      }
+    }
+  });
+
+  setInterval( function() {
+    cvChart.data.datasets[0].data = Object.values(cvData[i]);
+    i++;
+    cvChart.update();
+  }, 1000);
+</script>
+</body>
+</html>
