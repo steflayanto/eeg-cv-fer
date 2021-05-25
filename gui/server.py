@@ -1,5 +1,4 @@
 from flask import Flask, request, render_template, session, send_from_directory
-from flask_session import Session
 import subprocess
 import sys
 import numpy as np
@@ -7,10 +6,10 @@ import json
 import os
 from pathlib import Path
 
+
 app = Flask(__name__, static_url_path='/uploads')
-SESSION_TYPE = 'filesystem'
 app.config.from_object(__name__)
-Session(app)
+app.secret_key = 'fake_secret'
 
 def render_home():
     eeg_b=("raw_eeg_path" in session)
@@ -18,8 +17,8 @@ def render_home():
     if ("label_frequency" in session):
         label_freq = session['label_frequency']
     else:
-        label_freq = 1
-        session['label_frequency'] = 1
+        label_freq = "1"
+        session['label_frequency'] = "1"
     if ("eeg_model_name" in session):
         eeg_name = session['eeg_model_name']
     else:
@@ -45,13 +44,14 @@ def index():
 def process_eeg(eeg_path):
     just_name = Path(eeg_path).stem
     print(session["label_frequency"])
+    print(eeg_path)
     subprocess.call([sys.executable, '../modelRunner.py', '-l', f'{session["label_frequency"]}', '-n', f'{session["eeg_model_name"]}', '-d', f'{eeg_path}'])
-    session["eeg_path"] = f"./output/default-eeg-{just_name}.json"
+    session["eeg_path"] = f"./output/{session['eeg_model_name']}.json"
 
 def process_cv(cv_path):
     just_name = Path(session["raw_video_path"]).stem
     subprocess.call([sys.executable, '../modelRunner.py', '-l', f'{session["label_frequency"]}', '-n', f'{session["cv_model_name"]}', '-d', f'{cv_path}'])
-    session["cv_path"] = f"./output/default-mtcnn-{just_name}.json"
+    session["cv_path"] = f"./output/{session['cv_model_name']}.json"
 
 @app.route('/',methods=["POST"]) 
 def upload_file():
