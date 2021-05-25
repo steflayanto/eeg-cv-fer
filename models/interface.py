@@ -136,7 +136,7 @@ class DefaultCVModel(AbstractModel):
     #     json_object = json.dumps(json_dict, indent = 4)  
     #     print(json_object)
         if write:
-            with open(self.OUTPUT_PATH + f"{cv_model_name}-{video_name}.json", "w+") as outfile: 
+            with open(self.OUTPUT_PATH + f"{cv_model_name}.json", "w+") as outfile: 
                 json.dump(json_dict, outfile)
 
 def read_img(img_path):

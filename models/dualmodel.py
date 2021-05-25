@@ -1,3 +1,5 @@
+import json
+
 """
 Reads in input from both CV and EEG, compares them, then returns a combined output.
 Input format:
@@ -18,95 +20,96 @@ Output format:
         "data": {"0": (cvArousal, cvValence, eegQuadrant, matchBoolean), ...}
     }
 """
-import json
-DATA_PATH = "./gui/output/"
-# disgust mapped to reproach. sad mapped roughly to disappointment and remorse
-cat_av_consts = {"angry": (.59,-.62), "disgust": (.47,-.41), "fear": (.47,-.74), "happy": (.17,.75), "sad": (-.1,-.5), "surprise": (.47,-.74), "neutral": (0,0)}
+class DualModel:
+    def __init__(self):
+        self.DATA_PATH = "./output/"
+        # disgust mapped to reproach. sad mapped roughly to disappointment and remorse
+        self.cat_av_consts = {"angry": (.59,-.62), "disgust": (.47,-.41), "fear": (.47,-.74), "happy": (.17,.75), "sad": (-.1,-.5), "surprise": (.47,-.74), "neutral": (0,0)}
 
-def cat_to_av(cat_dict):
-    arousal, valence = 0, 0
-    for key, value in cat_dict.items():
-        new_arousal, new_valence = cat_av_consts[key][0] * value, cat_av_consts[key][1] * value
-        arousal += new_arousal
-        valence += new_valence
-    # print(arousal, valence)
-    return arousal, valence
+    def cat_to_av(self, cat_dict):
+        arousal, valence = 0, 0
+        for key, value in cat_dict.items():
+            new_arousal, new_valence = self.cat_av_consts[key][0] * value, self.cat_av_consts[key][1] * value
+            arousal += new_arousal
+            valence += new_valence
+        # print(arousal, valence)
+        return arousal, valence
 
-# def av_to_cat(av_tup):
-#     av_tup
+    # def av_to_cat(av_tup):
+    #     av_tup
 
-def check_match(arousal, valence, eegQuadrant):
-    if eegQuadrant == 0:
-        return arousal <= 0 and valence <= 0
-    elif eegQuadrant == 1:
-        return arousal >= 0 and valence <= 0
-    elif eegQuadrant == 2:
-        return arousal >= 0 and valence >= 0
-    elif eegQuadrant == 3:
-        return arousal <= 0 and valence >= 0
-    else:
-        print("ERROR")
-        return None
+    def check_match(self, arousal, valence, eegQuadrant):
+        if eegQuadrant == 0:
+            return arousal <= 0 and valence <= 0
+        elif eegQuadrant == 1:
+            return arousal >= 0 and valence <= 0
+        elif eegQuadrant == 2:
+            return arousal >= 0 and valence >= 0
+        elif eegQuadrant == 3:
+            return arousal <= 0 and valence >= 0
+        else:
+            print("ERROR")
+            return None
 
-def read_input(eegDataPath, cvDataPath, eegModelName, cvModelName):
-    cv_data, eeg_data = dict(), dict()
+    def read_input(self, eegPath, cvPath):
+        cv_data, eeg_data = dict(), dict()
 
-    with open(DATA_PATH + f"{eegModelName}-{eegDataPath}.json", "r") as infile1: 
-        # print("Reading", DATA_PATH + f"{eegModelName}-{eegDataPath}.json")
-        eeg_data = json.load(infile1)
-    
-    with open(DATA_PATH + f"{cvModelName}-{cvDataPath}.json", "r") as infile2: 
-        # print("Reading", DATA_PATH + f"{cvModelName}-{cvDataPath}.json")
-        cv_data = json.load(infile2)
-    # print(cv_data)
-    # print(eeg_data)
-    return cv_data, eeg_data
+        with open(self.DATA_PATH + eegPath, "r") as infile1: 
+            # print("Reading", DATA_PATH + f"{eegModelName}-{eegDataPath}.json")
+            eeg_data = json.load(infile1)
+        
+        with open(self.DATA_PATH + cvPath, "r") as infile2: 
+            # print("Reading", DATA_PATH + f"{cvModelName}-{cvDataPath}.json")
+            cv_data = json.load(infile2)
+        # print(cv_data)
+        # print(eeg_data)
+        return cv_data, eeg_data
 
-def write_output(metadata, data, write=False):
-    json_dict = dict()
-    json_dict["metadata"] = metadata
-    json_dict["data"] = data
-#     json_object = json.dumps(json_dict, indent = 4)  
-#     print(json_object)
-    if write:
-        with open(DATA_PATH + f"joint-{metadata['cvModelName']}-{metadata['cvDataPath']}-{metadata['eegModelName']}-{metadata['eegDataPath']}.json", "w+") as outfile: 
-            json.dump(json_dict, outfile)
-
-
-def process_data(cv_data, eeg_data):
-    metadata, data = dict(), dict()
-
-    # Create "metadata": {"eegDataPath": "s01_trial01.npy", "cvDataPath":"s01_trial01.avi", "eegLabelFrequency": "1", "eegModelName": "default", "cvLabelFrequency": "1", "cvModelName": "default", "bsScore": 0.2}, 
-    metadata['eegDataPath'] = eeg_data['metadata']['dataPath']
-    metadata['cvDataPath'] = cv_data['metadata']['videoPath']
-    metadata['eegLabelFrequency'] = eeg_data['metadata']['eegLabelFrequency']
-    metadata['eegModelName'] = eeg_data['metadata']['eegModelName']
-    metadata['cvLabelFrequency'] = cv_data['metadata']['cvLabelFrequency']
-    metadata['cvModelName'] = cv_data['metadata']['cvModelName']
-    
-    # Process data
-    cv_trial = cv_data['data']
-    eeg_trial = eeg_data['data']
-    data = dict()
-    # print(cv_data, "\n-----------------------------------------\n" ,eeg_data)
-    assert len(cv_trial) == len(eeg_trial), f"Invalid lengths. cv:{len(cv_trial)} and eeg:{len(eeg_trial)}"
-
-    match_count = 0
-    for key in cv_trial.keys():
-        arousal, valence = cat_to_av(cv_trial[key])
-        eeg_quadrant = eeg_trial[str(int(float(key)))]
-        data[key] = arousal, valence, eeg_quadrant, check_match(arousal, valence, eeg_quadrant)
-        if data[key][2]:
-            match_count += 1
-        # print(data[key])
-
-    metadata['bsScore'] = match_count / len(cv_trial)
-    # print(metadata)
-
-    return metadata, data
+    def write_output(self, metadata, data, write=False):
+        json_dict = dict()
+        json_dict["metadata"] = metadata
+        json_dict["data"] = data
+    #     json_object = json.dumps(json_dict, indent = 4)  
+    #     print(json_object)
+        if write:
+            with open(self.DATA_PATH + f"joint-{metadata['eegModelName']}-{metadata['cvModelName']}.json", "w+") as outfile: 
+                json.dump(json_dict, outfile)
 
 
-cv_data, eeg_data = read_input("s01_trial01", "s01_trial01", "default-eeg", "default-mtcnn")
-metadata, data = process_data(cv_data, eeg_data)
-write_output(metadata, data, write=True)
+    def process_data(self, cv_data, eeg_data):
+        metadata, data = dict(), dict()
+
+        # Create "metadata": {"eegDataPath": "s01_trial01.npy", "cvDataPath":"s01_trial01.avi", "eegLabelFrequency": "1", "eegModelName": "default", "cvLabelFrequency": "1", "cvModelName": "default", "bsScore": 0.2}, 
+        metadata['eegDataPath'] = eeg_data['metadata']['dataPath']
+        metadata['cvDataPath'] = cv_data['metadata']['videoPath']
+        metadata['eegLabelFrequency'] = eeg_data['metadata']['eegLabelFrequency']
+        metadata['eegModelName'] = eeg_data['metadata']['eegModelName']
+        metadata['cvLabelFrequency'] = cv_data['metadata']['cvLabelFrequency']
+        metadata['cvModelName'] = cv_data['metadata']['cvModelName']
+        
+        # Process data
+        cv_trial = cv_data['data']
+        eeg_trial = eeg_data['data']
+        data = dict()
+        # print(cv_data, "\n-----------------------------------------\n" ,eeg_data)
+        assert len(cv_trial) == len(eeg_trial), f"Invalid lengths. cv:{len(cv_trial)} and eeg:{len(eeg_trial)}"
+
+        match_count = 0
+        for key in cv_trial.keys():
+            arousal, valence = self.cat_to_av(cv_trial[key])
+            eeg_quadrant = eeg_trial[str(int(float(key)))]
+            data[key] = arousal, valence, eeg_quadrant, self.check_match(arousal, valence, eeg_quadrant)
+            if data[key][2]:
+                match_count += 1
+            # print(data[key])
+
+        metadata['bsScore'] = match_count / len(cv_trial)
+        # print(metadata)
+
+        return metadata, data
+
+    def run(self, eeg_path, cv_path):
+        cv_data, eeg_data = self.read_input(eeg_path, cv_path)
+        metadata, data = self.process_data(cv_data, eeg_data)
+        self.write_output(metadata, data, write=True)
 
