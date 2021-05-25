@@ -15,7 +15,13 @@
     {% else %}
     <li class="status-no status">CV File Not Uploaded</li>
     {%  endif %}
+    <li>Model Frequency: {{label_freq}} Hz</li>
+    <li>EEG Model: {{eeg_name}}</li>
+    <li>CV Model: {{cv_name}}</li>
   </ul>
+  <form method="get" action="/clear_session">
+    <button type="submit" class="submit-file-trigger">Clear Session</button>
+  </form>
 </div>
 <div style="float: left; width: 40%">
   <h2>Upload Files</h2>
@@ -30,7 +36,7 @@
     </div>
   </form>
   <form method="get" action="/run">
-    <button type="submit">Run Models</button>
+    <button type="submit" class="submit-file-trigger">Run Models</button>
   </form>
 </div>
 <div style="float:left; width:30%" class="well">
@@ -38,7 +44,7 @@
   <form action="/set_parameter" method="post">
     <div class="form-group">
       <label for="firstname">Model Frequency</label>
-      <input class="form-control" type="text" name="output_frequency" placeholder="Enter Frequency (Hz)">
+      <input class="form-control" type="text" name="output_frequency" placeholder="Enter Frequency (Hz)" value="1">
     </div>
     <div class="form-group">
       <label for="eeg-model">EEG Model</label>

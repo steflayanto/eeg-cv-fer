@@ -1,4 +1,6 @@
 {{ errors | safe }}
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/eegplayback.css') }}">
+<h1>EEG Results</h1>
 
 <!DOCTYPE html>
 <html>
@@ -16,7 +18,7 @@
     <div class="col">
       <div style="width: 80%; margin: auto">
       <br>
-      <div width="1400" height="600" style="float: left">
+      <div width="1400" height="600">
       <canvas id="eeg" width="1400" height="600"></canvas>
       </div>
       </div>
@@ -50,8 +52,11 @@
       }
     },
     plugins: {
-      legend : {
-        display : false
+      legend: {
+          display: true,
+          labels: {
+              color: 'rgb(255, 99, 132)'
+          }
       }
     }
   };
