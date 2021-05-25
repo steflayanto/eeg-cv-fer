@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import cv2
 import json
 import os
+import random as rand
 from pathlib import Path
 
 DATA_PATH = "./uploads/dev/"
@@ -23,14 +24,14 @@ class DefaultCVModel(AbstractModel):
 
     def __init__(self, sample_rate=2, verbose=False):
         self.detector = FER(mtcnn=True)
-        self.name = "default-mtcnn"
+        self.name = "default-cv"
         self.sample_rate = sample_rate
         self.verbose = verbose
 
-    def run(self, video_name): # sample data: s01_trial01.avi acting-lady.mp4
-        data = self.detect_emotions_from_video(self.detector, self.DATA_PATH + video_name, sample_rate=2) # self, video_name, sample_rate, cv_model_name, data, write=False
-        video_name = video_name.split('.')[0] # Strip off any file extensions .avi
-        self.write_output(video_name, self.sample_rate, self.name, data, write=True)
+    # def run(self, video_name): # sample data: s01_trial01.avi acting-lady.mp4
+    #     data = self.detect_emotions_from_video(self.detector, self.DATA_PATH + video_name, sample_rate=2) # self, video_name, sample_rate, cv_model_name, data, write=False
+    #     video_name = video_name.split('.')[0] # Strip off any file extensions .avi
+    #     self.write_output(video_name, self.sample_rate, self.name, data, write=True)
 
     def run(self, data_path): # "s01_trial01.avi"
         data = self.detect_emotions_from_video(self.detector, self.DATA_PATH + data_path, sample_rate=1)
@@ -128,6 +129,32 @@ class DefaultCVModel(AbstractModel):
     }
     """
 
+    def write_output(self, video_name, sample_rate, cv_model_name, data, write=False):
+        json_dict = dict()
+        json_dict["metadata"] = {"videoPath": video_name, "cvLabelFrequency":sample_rate, "cvModelName":cv_model_name}
+        json_dict["data"] = data
+    #     json_object = json.dumps(json_dict, indent = 4)  
+    #     print(json_object)
+        if write:
+            with open(self.OUTPUT_PATH + f"{cv_model_name}.json", "w+") as outfile: 
+                json.dump(json_dict, outfile)
+
+
+class RandomCVModel(AbstractModel):
+    
+    def __init__(self, sample_rate=2, verbose=False):
+        self.sample_rate = sample_rate
+        self.verbose = verbose
+    
+    def write_output(self, video_name, sample_rate, cv_model_name, data, write=False):
+        json_dict = dict()
+        json_dict["metadata"] = {"videoPath": video_name, "cvLabelFrequency":sample_rate, "cvModelName":cv_model_name}
+        json_dict["data"] = data
+    #     json_object = json.dumps(json_dict, indent = 4)  
+    #     print(json_object)
+        if write:
+            with open(self.OUTPUT_PATH + f"{cv_model_name}.json", "w+") as outfile: 
+                json.dump(json_dict, outfile)
 
     def write_output(self, video_name, sample_rate, cv_model_name, data, write=False):
         json_dict = dict()
@@ -138,6 +165,34 @@ class DefaultCVModel(AbstractModel):
         if write:
             with open(self.OUTPUT_PATH + f"{cv_model_name}.json", "w+") as outfile: 
                 json.dump(json_dict, outfile)
+
+    def run(self, data_path):
+        path = self.DATA_PATH + data_path
+        assert os.path.exists(path), "Error: Path not found " + path
+        video = cv2.VideoCapture(path)
+        fps = video.get(cv2.CAP_PROP_FPS)
+        
+        assert fps >= self.sample_rate, "Error: FPS {} < Sample Rate {}".format(fps, self.sample_rate)
+        if self.verbose:
+            print("Processing video {} with FPS: {} at Sample Rate: {} Hz".format(path, fps, self.sample_rate))
+        frame_skip = fps / self.sample_rate
+        i = 0
+        data = dict()
+        while(video.isOpened()):
+            ret, _ = video.read()
+            if not ret:
+                break
+
+            if i % frame_skip == 0:
+                nums = [rand.random() for i in range(7)]
+                normalized = [num  / sum(nums) for num in nums]
+                # print(normalized)
+                emotions  = {"angry": normalized[0], "disgust": normalized[1], "fear": normalized[2], "happy": normalized[3], "sad": normalized[4], "surprise": normalized[5], "neutral": normalized[6]}
+                data[i / fps] = emotions
+            i += 1
+        # print(data)
+        video.release()    
+        self.write_output(data_path, self.sample_rate, "random-cv", data, write=True)
 
 def read_img(img_path):
     return plt.imread(DATA_PATH + img_path)
