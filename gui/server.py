@@ -50,7 +50,7 @@ def upload_file():
         subprocess.call([sys.executable, '../modelRunner.py', '-n', f'{session["cv_model_name"]}', '-d', f'uploads/{uploaded_file.filename}'])
         session["cv_path"] = f"./output/default-mtcnn-{just_name}.json"
         session["raw_video_path"] = "uploads/" + uploaded_file.filename
-    elif "npy" in uploaded_file.filename:
+    elif "dat" in uploaded_file.filename:
         uploaded_file.save(os.path.join("uploads/", uploaded_file.filename))
         just_name = Path(uploaded_file.filename).stem
         subprocess.call([sys.executable, '../modelRunner.py', '-n', f'{session["eeg_model_name"]}', '-d', f'uploads/{uploaded_file.filename}'])
