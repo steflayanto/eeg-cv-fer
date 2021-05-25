@@ -29,9 +29,10 @@ The input for the CV model has to be a .mp4 file and can be of any framerate
 
 The input for the EEG model has to be a .dat file with these specifications:
 1. The array extracted from the .dat file should be in the format [channels, signals] with the shape of the array being [# channels, total time of recording * dataFrequency]
-2. The default dataFrequency is 128 but can be specified when calling modelRunner.py
-3. The data the model was trained on was downsampled to 128 and bandpass filtered from 4-45hz
-4. Artifacts should be removed ahead of time for optimal results
+2. Their has to be atleast 8 signals passed in for each channel (total time of recording * dataFrequency >= 8)
+3. The default dataFrequency is 128 but can be specified when calling modelRunner.py
+4. The data the model was trained on was downsampled to 128 and bandpass filtered from 4-45hz
+5. Artifacts should be removed ahead of time for optimal results
 
 Finally make sure that the cv model and eeg data are the same length and synched up if using the combined model
 
