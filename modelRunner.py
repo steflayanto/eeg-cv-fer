@@ -1,6 +1,6 @@
 import sys, getopt
 
-from models.interface import DefaultCVModel
+from models.interface import DefaultCVModel, RandomCVModel
 from models.eegdcnnmodel import EEGDCNNModel
 from models.dualmodel import DualModel
 
@@ -69,6 +69,13 @@ if __name__ == "__main__":
             model = DefaultCVModel(sample_rate=sample_rate)
         else:
             model = DefaultCVModel()
+        model.run(data_path)
+    if model_name == "randomcv":
+        print('Running model: {}, at frequency {} Hz, on data: {}'.format(model_name, sample_rate, data_path))
+        if sample_rate:
+            model = RandomCVModel(sample_rate=sample_rate)
+        else:
+            model = RandomCVModel()
         model.run(data_path)
     elif model_name == "defaulteeg":
         print('Running model: {}, at frequency {} Hz, on data: {}'.format(model_name, sample_rate, data_path))
