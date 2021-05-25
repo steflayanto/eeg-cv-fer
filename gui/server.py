@@ -1,5 +1,4 @@
 from flask import Flask, request, render_template, session, send_from_directory
-from flask_session import Session
 import subprocess
 import sys
 import numpy as np
@@ -7,49 +6,101 @@ import json
 import os
 from pathlib import Path
 
+
 app = Flask(__name__, static_url_path='/uploads')
-SESSION_TYPE = 'filesystem'
 app.config.from_object(__name__)
-Session(app)
+app.secret_key = 'fake_secret'
+
+def render_home():
+    eeg_b=("raw_eeg_path" in session)
+    cv_b = ("raw_video_path" in session)
+    if ("label_frequency" in session):
+        label_freq = session['label_frequency']
+    else:
+        label_freq = "1"
+        session['label_frequency'] = "1"
+    if ("eeg_model_name" in session):
+        eeg_name = session['eeg_model_name']
+    else:
+        eeg_name = "defaulteeg"
+        session['eeg_model_name'] = "defaulteeg"
+    if ("cv_model_name" in session):
+        cv_name = session['cv_model_name']
+    else:
+        cv_name = "defaultcv"
+        session['cv_model_name'] = "defaultcv"
+    print(label_freq)
+    return render_template('index.html',
+                            eeg_valid = eeg_b,
+                            cv_valid =  cv_b,
+                            eeg_name = eeg_name,
+                            cv_name = cv_name,
+                            label_freq = label_freq)
 
 @app.route('/')
 def index():
-    return render_template('index.html', eeg_valid=("eeg_path" in session), cv_valid = ("cv_path" in session))
+    return render_home()
+
+def process_eeg(eeg_path):
+    just_name = Path(eeg_path).stem
+    print(session["label_frequency"])
+    print(eeg_path)
+    subprocess.call([sys.executable, '../modelRunner.py', '-l', f'{session["label_frequency"]}', '-n', f'{session["eeg_model_name"]}', '-d', f'{eeg_path}'])
+    session["eeg_path"] = f"./output/{session['eeg_model_name']}.json"
+
+def process_cv(cv_path):
+    just_name = Path(session["raw_video_path"]).stem
+    subprocess.call([sys.executable, '../modelRunner.py', '-l', f'{session["label_frequency"]}', '-n', f'{session["cv_model_name"]}', '-d', f'{cv_path}'])
+    session["cv_path"] = f"./output/{session['cv_model_name']}.json"
 
 @app.route('/',methods=["POST"]) 
 def upload_file():
     uploaded_file = request.files['file']
     if 'video' in uploaded_file.content_type:
         uploaded_file.save(os.path.join("uploads/", uploaded_file.filename))
-        just_name = Path(uploaded_file.filename).stem
-        subprocess.call([sys.executable, '../modelRunner.py', '-n', 'defaultcv', '-d', f'uploads/{uploaded_file.filename}'])
-        session["cv_path"] = f"./output/default-mtcnn-{just_name}.json"
         session["raw_video_path"] = "uploads/" + uploaded_file.filename
-    elif "npy" in uploaded_file.filename:
+
+    elif "dat" in uploaded_file.filename:
         uploaded_file.save(os.path.join("uploads/", uploaded_file.filename))
-        just_name = Path(uploaded_file.filename).stem
-        subprocess.call([sys.executable, '../modelRunner.py', '-n', 'defaulteeg', '-d', f'uploads/{uploaded_file.filename}'])
-        session["eeg_path"] = f"./output/default-eeg-{just_name}.json"
-    
-    return render_template('index.html', eeg_valid=("eeg_path" in session), cv_valid = ("cv_path" in session))
+        session["raw_eeg_path"] = "uploads/" + uploaded_file.filename
+
+    return render_home()
+
+
+@app.route('/set_parameter', methods=["POST"]) 
+def set_parameter():
+    print(request.get_data())
+    session['label_frequency'] = request.form['output_frequency']
+    session['cv_model_name'] = request.form['cv-model']
+    session['eeg_model_name'] = request.form['eeg-model']
+    return render_home()
+
+@app.route('/clear_session')
+def clear():
+    session.clear()
+    return render_home()
 
 @app.route('/run')
 def run():
-    if not "eeg_path" in session and not "cv_path" in session:
-        return render_template('index.html', eeg_valid = ("eeg_path" in session), cv_valid = ("cv_path" in session))
-    elif not "eeg_path" in session:
+    if not "raw_eeg_path" in session and not "raw_video_path" in session:
+        return render_home()
+    elif not "raw_eeg_path" in session:
+        process_cv(session['raw_video_path'])
         cv_data = ""
         with open(session["cv_path"]) as fd:
             cv_data = json.load(fd)
             print(cv_data)
         return render_template('cvplayback.html', cv_data=json.dumps(cv_data), video_path=session["raw_video_path"])
-    elif not "cv_path" in session:
+    elif not "raw_video_path" in session:
+        process_eeg(session['raw_eeg_path'])
         eeg_data = ""
         with open(session["eeg_path"]) as fd:
             eeg_data = json.load(fd)
             print(eeg_data)
         return render_template('eegplayback.html', eeg_data=json.dumps(eeg_data))
     else:
+        process_cv(session['raw_video_path'])
+        process_eeg(session['raw_eeg_path'])
         cv_data = ""
         eeg_data = ""
         with open(session["cv_path"]) as fd:
@@ -58,7 +109,12 @@ def run():
         with open(session["eeg_path"]) as fd:
             eeg_data = json.load(fd)
             print(eeg_data)
-        return render_template('playback.html', eeg_data=json.dumps(eeg_data), cv_data=json.dumps(cv_data), video_path=session["raw_video_path"])
+        subprocess.call([sys.executable, '../modelRunner.py', '-n', 'joint', '-c', f'{session["cv_path"]}', '-e', f'{session["eeg_path"]}'])
+        combined_data_path = f"./output/joint-{session['eeg_model_name']}-{session['cv_model_name']}.json"
+        with open(combined_data_path) as fd:
+            combined_data = json.load(fd)
+            print(combined_data)
+        return render_template('playback.html', eeg_data=json.dumps(eeg_data), cv_data=json.dumps(cv_data), video_path=session["raw_video_path"], combined_data=json.dumps(combined_data))
 
 @app.route('/uploads/<filename>')
 def send_file(filename):

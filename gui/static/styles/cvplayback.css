@@ -1,0 +1,42 @@
+
+body {
+  font-family: "Open sans", "Segoe UI", "Segoe WP", Helvetica, Arial, sans-serif;
+  color: #7F8C9A;
+  background:#f8f8ff
+}
+h1 {
+  margin-bottom: 40px;
+}
+h1, h2 {
+  font-weight: normal;
+  text-align: center;
+  color:#aaa;
+}
+h2 {
+  margin: 5px 0 1em;
+  color: #1ABC9C;
+}
+form {
+  width: 225px;
+  margin: 0 auto;
+  text-align:center;
+}
+h2 + P {
+  text-align: center;
+}
+.txtcenter {
+  margin-top: 4em;
+  font-size: .9em;
+  text-align: center;
+  color: #aaa;
+}
+.copy {
+  margin-top: 2em;
+}
+.copy a {
+  text-decoration: none;
+  color: #1ABC9C;
+}
+
+  
+  

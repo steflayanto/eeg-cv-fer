@@ -1,4 +1,6 @@
 {{ errors | safe }}
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/cvplayback.css') }}">
+<h1>CV Results</h1>
 
 <!DOCTYPE html>
 <html>
@@ -37,6 +39,7 @@
   const datacv = {
     labels: ["Anger", "Disgust", "Fear", "Happy", "Sad", "Surprise", "Neutral"],
     datasets: [{
+      label: "Emotion",
       data: [.5,.5,.5,.5,.5,.5,.5]}],
       backgroundColor: [
       'rgba(255, 99, 132, 0.2)',

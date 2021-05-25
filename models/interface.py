@@ -6,10 +6,10 @@ import os
 import random as rand
 from pathlib import Path
 
-DATA_PATH = "./uploads/"
+DATA_PATH = ".//"
 
 class AbstractModel:
-    DATA_PATH = "./uploads/"
+    DATA_PATH = ".//"
     OUTPUT_PATH = "./output/"
     def __init__(self, sample_rate=2):
         print("Error: called init on abstract class")
@@ -19,7 +19,7 @@ class AbstractModel:
         pass
 
 class DefaultCVModel(AbstractModel):
-    DATA_PATH = "./uploads/"
+    DATA_PATH = ".//"
     OUTPUT_PATH = "./output/"
 
     def __init__(self, sample_rate=2, verbose=False):

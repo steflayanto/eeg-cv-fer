@@ -1,4 +1,6 @@
 {{ errors | safe }}
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/eegplayback.css') }}">
+<h1>EEG Results</h1>
 
 <!DOCTYPE html>
 <html>
@@ -16,7 +18,7 @@
     <div class="col">
       <div style="width: 80%; margin: auto">
       <br>
-      <div width="1400" height="600" style="float: left">
+      <div width="1400" height="600">
       <canvas id="eeg" width="1400" height="600"></canvas>
       </div>
       </div>
@@ -37,7 +39,7 @@
               min : -1.5,
               title: {
                 display: true,
-                text: 'Arousal'
+                text: 'Valence'
               }
       },
       x : {
@@ -45,25 +47,37 @@
               min : -.5,
               title: {
                 display: true,
-                text: 'Valence'
+                text: 'Time'
               }
       }
     },
     plugins: {
-      legend : {
-        display : false
+      legend: {
+          display: true,
       }
     }
   };
   const datascatter = {
+    labels: ["High Arousal", "Low Arousal"],
     datasets: [{
+      label: "High Arousal",
       data: [
         {
           x:0,
           y:0
         }
       ],
-      backgroundColor: [],
+      backgroundColor: ["rgb(255, 0, 0)"],
+      pointRadius: 5,
+    }, {
+      label: "Low Arousal",
+      data: [
+        {
+          x:0,
+          y:0
+        }
+      ],
+      backgroundColor: ["rgb(0, 128, 0)"],
       pointRadius: 5,
     }],
   };
