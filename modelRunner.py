@@ -6,7 +6,17 @@ from models.dualmodel import DualModel
 
 usage = "Usage:\n\tmodelRunner.py [-n, --modelName] defaultcv [-l, --labelFrequency] 2 [-f, --dataFrequency] 2 [-d, --dataPath] video_or_eegfilename \nOR\n\tmodelRunner.py -n dual [-c, --cvPath] default-cv.json [-e, --eegPath] default-eeg.json"
 
-def main(argv):
+
+"""
+C-style parsing of arguments when called on the command line.
+
+There are two main ways of calling modelRunner.py:
+    1. Single model, user must pass in a model name and data path.
+    2. Dual model, user passes in 'dual' for the model, and then the paths of the output of the two models being combined
+
+There are additional optional arguments, such as sample_rate (any single model) and data_freq (eeg-based single models)
+"""
+def parse_args(argv):
     model_name, sample_rate, data_freq, data_path, cv_path, eeg_path = None, None, None, None, None, None
     try:
         # print(argv)
@@ -59,32 +69,39 @@ def main(argv):
     return model_name, sample_rate, data_freq, data_path, cv_path, eeg_path
 
 if __name__ == "__main__":
-    ret = main(sys.argv[1:])
+    # Parse Command Line Arguments
+    ret = parse_args(sys.argv[1:])
     if not ret:
         print("Error parsing args")
     model_name, sample_rate, data_freq, data_path, cv_path, eeg_path = ret
-    if model_name == "defaultcv":
+
+    # Detect which model was called and run it
+
+    if model_name == "defaultcv": # Default MTCNN CV Model
         print('Running model: {}, at frequency {} Hz, on data: {}'.format(model_name, sample_rate, data_path))
         if sample_rate:
             model = DefaultCVModel(sample_rate=sample_rate)
         else:
             model = DefaultCVModel()
         model.run(data_path)
-    if model_name == "randomcv":
+
+    if model_name == "randomcv": # Random CV Model
         print('Running model: {}, at frequency {} Hz, on data: {}'.format(model_name, sample_rate, data_path))
         if sample_rate:
             model = RandomCVModel(sample_rate=sample_rate)
         else:
             model = RandomCVModel()
         model.run(data_path)
-    elif model_name == "defaulteeg":
+
+    elif model_name == "defaulteeg": # Default EEG Model
         print('Running model: {}, at frequency {} Hz, on data: {}'.format(model_name, sample_rate, data_path))
         if sample_rate and data_freq:
             model = EEGDCNNModel(sample_rate=sample_rate, data_frequency=data_freq)
         else:
             model = EEGDCNNModel()
         model.run(data_path)
-    elif model_name == "dual":
+
+    elif model_name == "dual": # Run Dual Model
         print("Running dual model on {} and {}".format(eeg_path, cv_path))
         model = DualModel()
         model.run(eeg_path, cv_path)
