@@ -19,9 +19,14 @@
       <div style="width: 80%; margin: auto">
       <div style="text-align: center">
         <video width="800" height ="400" autoplay muted>
-          <source src="{{ video_path }}" type="video/mp4">
+          <source src="{{ video_path }}" type="video/mp4" id="vid">
         </video>
+        <div id="bs_div" hidden>
+          <p style="font-size: 40px; margin:0">BS Score</p>
+          <p style="font-size: 40px; margin:0" id="bs_score">0%</p>
+        </div>
       </div>
+
 
       <br>
       <div width="400" height="300" style="float: left">
@@ -39,6 +44,7 @@
   // Get the context of the canvas element we want to select
   var rawEEGData = JSON.parse('{{ eeg_data|safe }}');
   var rawCVData = JSON.parse('{{ cv_data|safe }}');
+  var rawCombined = JSON.parse('{{combined_data|safe }}')
   eegData = Object.values(rawEEGData.data)
   cvData = Object.values(rawCVData.data)
   var i = 0;
@@ -120,6 +126,13 @@
       }
     }
   });
+
+
+  rawscore = Math.round(1000*rawCombined.metadata.bsScore)/10
+  let div = document.getElementById('bs_div');
+  let text = document.getElementById('bs_score');
+  text.innerHTML = rawscore + "%";
+  div.removeAttribute("hidden")
 
   setInterval( function() {
     if (i < eegData.length) {
