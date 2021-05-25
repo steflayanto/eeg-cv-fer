@@ -20,8 +20,8 @@
     </video>
   </div>
   <div style="box-sizing: border-box;padding:10px; float: left; width: 50%; height: 50%">
-    <p style="font-size: 40px; margin:0">BS Score</p>
-    <p style="font-size: 40px; margin:0" id="bs_score">0%</p>
+    <p style="font-size: 40px; margin:0; text-align:center">BS Score</p>
+    <p style="font-size: 40px; margin:0; text-align:center" id="bs_score">0%</p>
   </div>
   <div style="box-sizing: border-box;padding:10px; float: left; width: 50%; height: 50%">
     <canvas id="eeg" style="width:100%; height:100%"></canvas>
@@ -87,7 +87,7 @@
     labels: ["Anger", "Disgust", "Fear", "Happy", "Sad", "Surprise", "Neutral"],
     datasets: [{
       label: "Emotion",
-      data: [.5,.5,.5,.5,.5,.5,.5]}],
+      data: [.5,.5,.5,.5,.5,.5,.5],
       backgroundColor: [
       'rgba(255, 99, 132, 0.2)',
       'rgba(255, 159, 64, 0.2)',
@@ -95,9 +95,9 @@
       'rgba(75, 192, 192, 0.2)',
       'rgba(54, 162, 235, 0.2)',
       'rgba(153, 102, 255, 0.2)',
-      'rgba(201, 203, 207, 0.2)'
-    ],
+      'rgba(201, 203, 207, 0.2)'],
     borderWidth: 1
+  }],
   };
   var cvChart = new Chart(cvChartSource, {
   type:'bar', 
@@ -128,20 +128,20 @@
     if (i < eegData.length) {
       let curEEG = eegData[i];
       if (curEEG == 0) {
-        eegChart.data.datasets[0].data[0].x = .8;
-        eegChart.data.datasets[0].data[0].y = .8;
+        eegChart.data.datasets[0].data[0].x = -.8;
+        eegChart.data.datasets[0].data[0].y = -.8;
       }
       if (curEEG == 1) {
         eegChart.data.datasets[0].data[0].x = -.8;
         eegChart.data.datasets[0].data[0].y = .8;
       }
       if (curEEG == 2) {
-        eegChart.data.datasets[0].data[0].x = -.8;
+        eegChart.data.datasets[0].data[0].x = .8;
         eegChart.data.datasets[0].data[0].y = -.8;
       }
       if (curEEG == 3) {
         eegChart.data.datasets[0].data[0].x = .8;
-        eegChart.data.datasets[0].data[0].y = -.8;
+        eegChart.data.datasets[0].data[0].y = .8;
       }
       cvChart.data.datasets[0].data = Object.values(cvData[i]);
     }
