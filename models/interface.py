@@ -5,22 +5,32 @@ import json
 import os
 from pathlib import Path
 
+DATA_PATH = "./uploads/dev/"
+
 class AbstractModel:
-    def __init__(self):
+    DATA_PATH = "./uploads/dev/"
+    OUTPUT_PATH = "./output/"
+    def __init__(self, sample_rate=2):
+        print("Error: called init on abstract class")
         pass
 
     def run(self, data_path):
         pass
 
 class DefaultCVModel(AbstractModel):
-    DATA_PATH = "./"
+    DATA_PATH = "./uploads/dev/"
     OUTPUT_PATH = "./output/"
 
-    def __init__(self, sample_rate=2):
+    def __init__(self, sample_rate=2, verbose=False):
         self.detector = FER(mtcnn=True)
         self.name = "default-mtcnn"
         self.sample_rate = sample_rate
+        self.verbose = verbose
 
+    def run(self, video_name): # sample data: s01_trial01.avi acting-lady.mp4
+        data = self.detect_emotions_from_video(self.detector, self.DATA_PATH + video_name, sample_rate=2) # self, video_name, sample_rate, cv_model_name, data, write=False
+        video_name = video_name.split('.')[0] # Strip off any file extensions .avi
+        self.write_output(video_name, self.sample_rate, self.name, data, write=True)
 
     def run(self, data_path): # "s01_trial01.avi"
         data = self.detect_emotions_from_video(self.detector, self.DATA_PATH + data_path, sample_rate=1)
@@ -41,7 +51,8 @@ class DefaultCVModel(AbstractModel):
             return None
         
         if len(faces) > 1:
-            print("WARNING: {} faces detected... selecting largest".format(len(faces)))
+            if self.verbose:
+                print("WARNING: {} faces detected... selecting largest".format(len(faces)))
             sizes = []
             for face in faces:
                 box = face['box']
@@ -77,8 +88,8 @@ class DefaultCVModel(AbstractModel):
         fps = video.get(cv2.CAP_PROP_FPS)
         
         assert fps >= sample_rate, "Error: FPS {} < Sample Rate {}".format(fps, sample_rate)
-        
-        print("Processing video {} with FPS: {} at Sample Rate: {} Hz".format(path, fps, sample_rate))
+        if self.verbose:
+            print("Processing video {} with FPS: {} at Sample Rate: {} Hz".format(path, fps, sample_rate))
         frame_skip = fps / sample_rate
         i = 0
         data = dict()
@@ -94,7 +105,8 @@ class DefaultCVModel(AbstractModel):
     #             plt.imshow(frame)
                 emotions = self.detect_still_img(frame)
                 if not emotions:
-                    break
+                    emotions  = {"angry": 0.0, "disgust": 0.0, "fear": 0.0, "happy": 0.0, "sad": 0.0, "surprise": 0.0, "neutral": 0.0}
+                    # break
                 data[i / fps] = emotions
             i += 1
         # print(data)
@@ -124,7 +136,7 @@ class DefaultCVModel(AbstractModel):
     #     json_object = json.dumps(json_dict, indent = 4)  
     #     print(json_object)
         if write:
-            with open(self.OUTPUT_PATH + f"{cv_model_name}-{video_name}.json", "w+") as outfile: 
+            with open(self.OUTPUT_PATH + f"{cv_model_name}.json", "w+") as outfile: 
                 json.dump(json_dict, outfile)
 
 def read_img(img_path):
@@ -142,4 +154,4 @@ if __name__ == '__main__':
 
     # write_output("s01_trial01", 2, "default-mtcnn", data, write=True)
     model = DefaultCVModel()
-    model.run("s01_trial01.avi")
+    model.run("acting-lady.mp4")
