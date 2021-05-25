@@ -49,13 +49,13 @@ def index():
 # in the session.
 def process_eeg(eeg_path):
     subprocess.call([sys.executable, '../modelRunner.py', '-l', f'{session["label_frequency"]}', '-n', f'{session["eeg_model_name"]}', '-d', f'{eeg_path}'])
-    session["eeg_path"] = f"./output/{session['eeg_model_name']}.json"
+    session["eeg_path"] = f"./{session['eeg_model_name']}.json"
 
 # CV classifier processing function. Calls the modelRunner script for CV, and stores the classifier output
 # in the session.
 def process_cv(cv_path):
     subprocess.call([sys.executable, '../modelRunner.py', '-l', f'{session["label_frequency"]}', '-n', f'{session["cv_model_name"]}', '-d', f'{cv_path}'])
-    session["cv_path"] = f"./output/{session['cv_model_name']}.json"
+    session["cv_path"] = f"./{session['cv_model_name']}.json"
 
 # Generic POST handling on the index page.
 @app.route('/',methods=["POST"]) 
@@ -117,8 +117,8 @@ def run():
         with open(session["eeg_path"]) as fd:
             eeg_data = json.load(fd)
             print(eeg_data)
-        subprocess.call([sys.executable, '../modelRunner.py', '-n', 'joint', '-c', f'{session["cv_path"]}', '-e', f'{session["eeg_path"]}'])
-        combined_data_path = f"./output/joint-{session['eeg_model_name']}-{session['cv_model_name']}.json"
+        subprocess.call([sys.executable, '../modelRunner.py', '-n', 'dual', '-c', f'{session["cv_path"]}', '-e', f'{session["eeg_path"]}'])
+        combined_data_path = f"./dual-{session['eeg_model_name']}-{session['cv_model_name']}.json"
         with open(combined_data_path) as fd:
             combined_data = json.load(fd)
             print(combined_data)
