@@ -22,7 +22,7 @@ Output format:
 """
 class DualModel:
     def __init__(self):
-        self.DATA_PATH = "./output/"
+        self.DATA_PATH = "./"
         # disgust mapped to reproach. sad mapped roughly to disappointment and remorse
         self.cat_av_consts = {"angry": (.59,-.62), "disgust": (.47,-.41), "fear": (.47,-.74), "happy": (.17,.75), "sad": (-.1,-.5), "surprise": (.47,-.74), "neutral": (0,0)}
 
@@ -72,11 +72,13 @@ class DualModel:
     #     json_object = json.dumps(json_dict, indent = 4)  
     #     print(json_object)
         if write:
-            with open(self.DATA_PATH + f"joint-{metadata['eegModelName']}-{metadata['cvModelName']}.json", "w+") as outfile: 
+            print("Writing to", self.DATA_PATH + f"dual-{metadata['eegModelName']}-{metadata['cvModelName']}.json")
+            with open(self.DATA_PATH + f"dual-{metadata['eegModelName']}-{metadata['cvModelName']}.json", "w+") as outfile: 
                 json.dump(json_dict, outfile)
 
 
     def process_data(self, cv_data, eeg_data):
+        # print("Processing data")
         metadata, data = dict(), dict()
 
         # Create "metadata": {"eegDataPath": "s01_trial01.npy", "cvDataPath":"s01_trial01.avi", "eegLabelFrequency": "1", "eegModelName": "default", "cvLabelFrequency": "1", "cvModelName": "default", "bsScore": 0.2}, 
@@ -92,11 +94,14 @@ class DualModel:
         eeg_trial = eeg_data['data']
         data = dict()
         # print(cv_data, "\n-----------------------------------------\n" ,eeg_data)
-        assert len(cv_trial) == len(eeg_trial), f"Invalid lengths. cv:{len(cv_trial)} and eeg:{len(eeg_trial)}"
+        #assert len(cv_trial) == len(eeg_trial), f"Invalid lengths. cv:{len(cv_trial)} and eeg:{len(eeg_trial)}"
 
         match_count = 0
         for key in cv_trial.keys():
             arousal, valence = self.cat_to_av(cv_trial[key])
+            if (str(int(float(key))) not in eeg_trial.keys()):
+                # print("Did  not find key for", key)
+                break
             eeg_quadrant = eeg_trial[str(int(float(key)))]
             data[key] = arousal, valence, eeg_quadrant, self.check_match(arousal, valence, eeg_quadrant)
             if data[key][2]:
@@ -105,6 +110,7 @@ class DualModel:
 
         metadata['bsScore'] = match_count / len(cv_trial)
         # print(metadata)
+        # print(data)
 
         return metadata, data
 

@@ -118,7 +118,7 @@ class EEGDCNNModel(AbstractModel):
     json_dict = dict()
     json_dict["metadata"] = {"dataPath": "s01_trial01", "eegLabelFrequency":"1", "eegModelName":"defaulteeg"}
     json_dict["data"] = json_data
-    with open('./output/defaulteeg.json', "w+") as outfile: 
+    with open('./defaulteeg.json', "w+") as outfile: 
        json.dump(json_dict, outfile)
 
 if __name__ == "__main__":
