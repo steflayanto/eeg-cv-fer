@@ -128,20 +128,20 @@
     if (i < eegData.length) {
       let curEEG = eegData[i];
       if (curEEG == 0) {
-        eegChart.data.datasets[0].data[0].x = .8;
-        eegChart.data.datasets[0].data[0].y = .8;
+        eegChart.data.datasets[0].data[0].x = -.8;
+        eegChart.data.datasets[0].data[0].y = -.8;
       }
       if (curEEG == 1) {
         eegChart.data.datasets[0].data[0].x = -.8;
         eegChart.data.datasets[0].data[0].y = .8;
       }
       if (curEEG == 2) {
-        eegChart.data.datasets[0].data[0].x = -.8;
+        eegChart.data.datasets[0].data[0].x = .8;
         eegChart.data.datasets[0].data[0].y = -.8;
       }
       if (curEEG == 3) {
         eegChart.data.datasets[0].data[0].x = .8;
-        eegChart.data.datasets[0].data[0].y = -.8;
+        eegChart.data.datasets[0].data[0].y = .8;
       }
       cvChart.data.datasets[0].data = Object.values(cvData[i]);
     }
