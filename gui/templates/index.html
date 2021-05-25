@@ -4,16 +4,16 @@
 <div style="width: 60%; margin: auto; height: 50%">
 <div style="float: left; width:30%">
   <h2>Status</h2>
-  <ul>
+  <ul style="width: fit-content; margin: auto">
     {% if eeg_valid %}
-    <li class="status-yes status">EEG File Uploaded</li>
+    <li class="status-yes status"></li>EEG File Uploaded <br>
     {% else %}
-    <li class="status-no status">EEG File Not Uploaded</li>
+    <li class="status-no status"></li>EEG File Not Uploaded<br>
     {%  endif %}
     {% if cv_valid %}
-    <li class="status-yes status">CV File Uploaded</li>
+    <li class="status-yes status"></li>CV File Uploaded
     {% else %}
-    <li class="status-no status">CV File Not Uploaded</li>
+    <li class="status-no status"></li>CV File Not Uploaded
     {%  endif %}
     <li>Model Frequency: {{label_freq}} Hz</li>
     <li>EEG Model: {{eeg_name}}</li>
@@ -62,7 +62,7 @@
         <option value="random">???</option>
       </select>
     </div>
-    <input type="submit" class="btn btn-primary" value="Submit">
+    <input type="submit" class="submit-file-trigger" value="Submit">
   </form>
 </div>
 </div>
