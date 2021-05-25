@@ -55,26 +55,21 @@
   font-weight: normal;
 }
 
-
-
-
-
-
-/* Useless styles, just for demo styles */
-
 body {
   font-family: "Open sans", "Segoe UI", "Segoe WP", Helvetica, Arial, sans-serif;
   color: #7F8C9A;
   background: #FCFDFD;
 }
+h1 {
+  margin-bottom: 40px;
+}
 h1, h2 {
-  margin-bottom: 5px;
   font-weight: normal;
   text-align: center;
   color:#aaa;
 }
 h2 {
-  margin: 5px 0 2em;
+  margin: 5px 0 1em;
   color: #1ABC9C;
 }
 form {
