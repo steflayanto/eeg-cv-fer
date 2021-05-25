@@ -6,10 +6,10 @@ import os
 import random as rand
 from pathlib import Path
 
-DATA_PATH = "./uploads/dev/"
+DATA_PATH = ".//"
 
 class AbstractModel:
-    DATA_PATH = "./uploads/dev/"
+    DATA_PATH = ".//"
     OUTPUT_PATH = "./output/"
     def __init__(self, sample_rate=2):
         print("Error: called init on abstract class")
@@ -19,12 +19,12 @@ class AbstractModel:
         pass
 
 class DefaultCVModel(AbstractModel):
-    DATA_PATH = "./uploads/dev/"
+    DATA_PATH = ".//"
     OUTPUT_PATH = "./output/"
 
     def __init__(self, sample_rate=2, verbose=False):
         self.detector = FER(mtcnn=True)
-        self.name = "default-cv"
+        self.name = "defaultcv"
         self.sample_rate = sample_rate
         self.verbose = verbose
 
@@ -192,7 +192,7 @@ class RandomCVModel(AbstractModel):
             i += 1
         # print(data)
         video.release()    
-        self.write_output(data_path, self.sample_rate, "random-cv", data, write=True)
+        self.write_output(data_path, self.sample_rate, "randomcv", data, write=True)
 
 def read_img(img_path):
     return plt.imread(DATA_PATH + img_path)
@@ -207,6 +207,6 @@ if __name__ == '__main__':
     # data = detect_emotions_from_video(detector, DATA_PATH + "s01_trial01.avi", sample_rate=2)
     # detect_still_img(detector, read_img("3-people.jpg"))
 
-    # write_output("s01_trial01", 2, "default-mtcnn", data, write=True)
+    # write_output("s01_trial01", 2, "defaultmtcnn", data, write=True)
     model = DefaultCVModel()
     model.run("acting-lady.mp4")
