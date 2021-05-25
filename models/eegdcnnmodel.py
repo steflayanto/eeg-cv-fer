@@ -24,7 +24,7 @@ import json
 from pathlib import Path
 
 class EEGDCNNModel(AbstractModel):
-  DATA_PATH = "./uploads/dev/"
+  DATA_PATH = "./"
 
   def __init__(self, sample_rate=1, data_frequency=128):
     model = nn.Sequential(
@@ -58,6 +58,7 @@ class EEGDCNNModel(AbstractModel):
     self.run_eeg(self.DATA_PATH + data_path, self.data_frequency, self.sample_rate)
 
   def run_eeg(self, data_path, data_frequency, sample_rate):
+    print(data_path)
     self.data = np.array(pickle.load(open(data_path, "rb"), encoding='latin1'))
     # data is 32 channel, 7680 (60 * 128)
     channels_total = self.data.shape[0]
