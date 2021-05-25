@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 import cv2
 import json
 import os
+from pathlib import Path
+
+DATA_PATH = "./uploads/dev/"
 
 class AbstractModel:
     DATA_PATH = "./uploads/dev/"
@@ -11,11 +14,13 @@ class AbstractModel:
         print("Error: called init on abstract class")
         pass
 
-    def run(self, video_name):
-        print("Error: called run on abstract class")
+    def run(self, data_path):
         pass
 
 class DefaultCVModel(AbstractModel):
+    DATA_PATH = "./uploads/dev/"
+    OUTPUT_PATH = "./output/"
+
     def __init__(self, sample_rate=2, verbose=False):
         self.detector = FER(mtcnn=True)
         self.name = "default-mtcnn"
@@ -27,7 +32,14 @@ class DefaultCVModel(AbstractModel):
         video_name = video_name.split('.')[0] # Strip off any file extensions .avi
         self.write_output(video_name, self.sample_rate, self.name, data, write=True)
 
-    def detect_still_img(self, image, visualize=False): # sample data: 3-people.jpg confused-josh.jpg no-person.jpg sad-lady.jpg
+    def run(self, data_path): # "s01_trial01.avi"
+        data = self.detect_emotions_from_video(self.detector, self.DATA_PATH + data_path, sample_rate=1)
+        # detect_still_img(detector, read_img("3-people.jpg"))
+        data_path = Path(data_path).stem 
+        self.write_output(data_path, self.sample_rate, self.name, data, write=True)
+        # self, video_name, sample_rate, cv_model_name, data, write=False
+
+    def detect_still_img(self, image, visualize=False):
     #     img1 = cv2.imread("tiger.jpg", 3)
     #     b,g,r = cv2.split(img)           # get b, g, r
     #     img = cv2.merge([r,g,b])     # switch it to r, g, b
@@ -124,10 +136,8 @@ class DefaultCVModel(AbstractModel):
     #     json_object = json.dumps(json_dict, indent = 4)  
     #     print(json_object)
         if write:
-            with open(self.OUTPUT_PATH + "{}-{}.json".format(cv_model_name, video_name), "w+") as outfile: 
+            with open(self.OUTPUT_PATH + f"{cv_model_name}-{video_name}.json", "w+") as outfile: 
                 json.dump(json_dict, outfile)
-
-
 
 def read_img(img_path):
     return plt.imread(DATA_PATH + img_path)
@@ -136,11 +146,6 @@ def read_img(img_path):
 #     x1, y1 = box[0]
 #     x2, y2 = box[2]
 #     return (x2 - x1) * (y2 - y1)
-
-
-    
-    
-
 
 if __name__ == '__main__':
     # detector = FER(mtcnn=True)

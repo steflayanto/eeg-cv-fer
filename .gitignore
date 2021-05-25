@@ -129,5 +129,4 @@ dmypy.json
 .pyre/
 
 #File uploads
-uploads/
-static/
+flask_session/
