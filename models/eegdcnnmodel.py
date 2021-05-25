@@ -24,7 +24,7 @@ import json
 from pathlib import Path
 
 class EEGDCNNModel(AbstractModel):
-  DATA_PATH = "./uploads/dev/"
+  DATA_PATH = "./uploads/"
 
   def __init__(self, sample_rate=1, data_frequency=128):
     model = nn.Sequential(
@@ -103,9 +103,9 @@ class EEGDCNNModel(AbstractModel):
     for i in range(len(preds)):
       json_data[i] = int(preds[i])
     json_dict = dict()
-    json_dict["metadata"] = {"dataPath": "s01_trial01", "eegLabelFrequency":"1", "eegModelName":"default-eeg"}
+    json_dict["metadata"] = {"dataPath": "s01_trial01", "eegLabelFrequency":"1", "eegModelName":"defaulteeg"}
     json_dict["data"] = json_data
-    with open('./output/default-eeg.json', "w+") as outfile: 
+    with open('./output/defaulteeg.json', "w+") as outfile: 
        json.dump(json_dict, outfile)
 
 if __name__ == "__main__":

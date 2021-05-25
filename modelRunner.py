@@ -4,7 +4,7 @@ from models.interface import DefaultCVModel, RandomCVModel
 from models.eegdcnnmodel import EEGDCNNModel
 from models.dualmodel import DualModel
 
-usage = "Usage:\n\tmodelRunner.py [-n, --modelName] defaultcv [-l, --labelFrequency] 2 [-f, --dataFrequency] 2 [-d, --dataPath] video_or_eegfilename \nOR\n\tmodelRunner.py -n dual [-c, --cvPath] default-cv.json [-e, --eegPath] default-eeg.json"
+usage = "Usage:\n\tmodelRunner.py [-n, --modelName] defaultcv [-l, --labelFrequency] 2 [-f, --dataFrequency] 2 [-d, --dataPath] video_or_eegfilename \nOR\n\tmodelRunner.py -n dual [-c, --cvPath] defaultcv.json [-e, --eegPath] defaulteeg.json"
 
 
 """
@@ -85,7 +85,7 @@ if __name__ == "__main__":
             model = DefaultCVModel()
         model.run(data_path)
 
-    if model_name == "randomcv": # Random CV Model
+    elif model_name == "randomcv": # Random CV Model
         print('Running model: {}, at frequency {} Hz, on data: {}'.format(model_name, sample_rate, data_path))
         if sample_rate:
             model = RandomCVModel(sample_rate=sample_rate)
@@ -110,4 +110,4 @@ if __name__ == "__main__":
         model = DualModel()
         model.run(eeg_path, cv_path)
     else:
-        print("Error: Model not found")
+        print("Error: Model not found", model_name)
