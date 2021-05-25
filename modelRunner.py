@@ -97,6 +97,10 @@ if __name__ == "__main__":
         print('Running model: {}, at frequency {} Hz, on data: {}'.format(model_name, sample_rate, data_path))
         if sample_rate and data_freq:
             model = EEGDCNNModel(sample_rate=sample_rate, data_frequency=data_freq)
+        elif sample_rate:
+            model = EEGDCNNModel(sample_rate=sample_rate)
+        elif data_freq:
+            model = EEGDCNNModel(data_frequency=data_freq)
         else:
             model = EEGDCNNModel()
         model.run(data_path)
