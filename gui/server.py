@@ -11,6 +11,9 @@ app = Flask(__name__, static_url_path='/uploads')
 app.config.from_object(__name__)
 app.secret_key = 'fake_secret'
 
+# Generic function to render the index page, checking the session
+# for values we may want to render the page with. Also sets default
+# values in session.
 def render_home():
     eeg_b=("raw_eeg_path" in session)
     cv_b = ("raw_video_path" in session)
@@ -37,22 +40,24 @@ def render_home():
                             cv_name = cv_name,
                             label_freq = label_freq)
 
+# Index page
 @app.route('/')
 def index():
     return render_home()
 
+# EEG classifier processing function. Calls the modelRunner script for EEG, and stores the classifier output
+# in the session.
 def process_eeg(eeg_path):
-    just_name = Path(eeg_path).stem
-    print(session["label_frequency"])
-    print(eeg_path)
     subprocess.call([sys.executable, '../modelRunner.py', '-l', f'{session["label_frequency"]}', '-n', f'{session["eeg_model_name"]}', '-d', f'{eeg_path}'])
     session["eeg_path"] = f"./output/{session['eeg_model_name']}.json"
 
+# CV classifier processing function. Calls the modelRunner script for CV, and stores the classifier output
+# in the session.
 def process_cv(cv_path):
-    just_name = Path(session["raw_video_path"]).stem
     subprocess.call([sys.executable, '../modelRunner.py', '-l', f'{session["label_frequency"]}', '-n', f'{session["cv_model_name"]}', '-d', f'{cv_path}'])
     session["cv_path"] = f"./output/{session['cv_model_name']}.json"
 
+# Generic POST handling on the index page.
 @app.route('/',methods=["POST"]) 
 def upload_file():
     uploaded_file = request.files['file']
@@ -66,7 +71,7 @@ def upload_file():
 
     return render_home()
 
-
+# Handles the set_parameter fields from the index page. Updates session values.
 @app.route('/set_parameter', methods=["POST"]) 
 def set_parameter():
     print(request.get_data())
@@ -75,11 +80,14 @@ def set_parameter():
     session['eeg_model_name'] = request.form['eeg-model']
     return render_home()
 
+# Clears the session of any previously stored values.
 @app.route('/clear_session')
 def clear():
     session.clear()
     return render_home()
 
+# Runs the classifiers, calling process_eeg and process_cv, and then rendering the final output page
+# where we display the data to the user.
 @app.route('/run')
 def run():
     if not "raw_eeg_path" in session and not "raw_video_path" in session:
@@ -116,9 +124,11 @@ def run():
             print(combined_data)
         return render_template('playback.html', eeg_data=json.dumps(eeg_data), cv_data=json.dumps(cv_data), video_path=session["raw_video_path"], combined_data=json.dumps(combined_data))
 
+# Handles requested video files from the user.
 @app.route('/uploads/<filename>')
 def send_file(filename):
     return send_from_directory("./uploads/", filename)
 
+# Main
 if __name__ == '__main__':
     app.run(port = 5000, debug=True)
