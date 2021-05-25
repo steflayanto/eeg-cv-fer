@@ -13,30 +13,21 @@
   .center { margin: 0 auto; width: 400px; }
 </style>
 <body>
-<div class="container">
-  <div class="row">
-    <div class="col">
-      <div style="width: 80%; margin: auto">
-      <div style="text-align: center">
-        <video width="800" height ="400" autoplay muted>
-          <source src="{{ video_path }}" type="video/mp4" id="vid">
-        </video>
-        <div id="bs_div" hidden>
-          <p style="font-size: 40px; margin:0">BS Score</p>
-          <p style="font-size: 40px; margin:0" id="bs_score">0%</p>
-        </div>
-      </div>
-
-
-      <br>
-      <div width="400" height="300" style="float: left">
-      <canvas id="eeg" width="600" height="400"></canvas>
-      </div>
-      <div width="400" height="300" style="float: right">
-      <canvas id="cv" width="600" height="400"></canvas>
-      </div>
-      </div>
-    </div>
+<div class="container" style="width: 75%; height: 80%;margin: auto; overflow:hidden">
+  <div style="box-sizing: border-box;padding:10px; float: left; width: 50%; height: 50%">
+    <video width="100%" height ="100%" autoplay muted>
+      <source src="{{ video_path }}" type="video/mp4" id="vid">
+    </video>
+  </div>
+  <div style="box-sizing: border-box;padding:10px; float: left; width: 50%; height: 50%">
+    <p style="font-size: 40px; margin:0">BS Score</p>
+    <p style="font-size: 40px; margin:0" id="bs_score">0%</p>
+  </div>
+  <div style="box-sizing: border-box;padding:10px; float: left; width: 50%; height: 50%">
+    <canvas id="eeg" style="width:100%; height:100%"></canvas>
+  </div>
+  <div style="box-sizing: border-box;padding:10px; float: left; width: 50%; height: 50%">
+    <canvas id="cv" style="width:100%; height:100%"></canvas>
   </div>
 </div>
 
@@ -49,7 +40,7 @@
   cvData = Object.values(rawCVData.data)
   var i = 0;
   var scatterOptions = {
-    responsive: false,
+    responsive: true,
     showLine: true,
     scales: {
       y : {
@@ -132,7 +123,6 @@
   let div = document.getElementById('bs_div');
   let text = document.getElementById('bs_score');
   text.innerHTML = rawscore + "%";
-  div.removeAttribute("hidden")
 
   setInterval( function() {
     if (i < eegData.length) {
