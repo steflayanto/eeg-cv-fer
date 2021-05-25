@@ -58,7 +58,6 @@ class EEGDCNNModel(AbstractModel):
     self.run_eeg(self.DATA_PATH + data_path, self.data_frequency, self.sample_rate)
 
   def run_eeg(self, data_path, data_frequency, sample_rate):
-    print(data_path)
     self.data = np.array(pickle.load(open(data_path, "rb"), encoding='latin1'))
     # data is 32 channel, 7680 (60 * 128)
     channels_total = self.data.shape[0]
