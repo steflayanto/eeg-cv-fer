@@ -12,9 +12,34 @@ SESSION_TYPE = 'filesystem'
 app.config.from_object(__name__)
 Session(app)
 
+def render_home():
+    eeg_b=("eeg_path" in session)
+    cv_b = ("cv_path" in session)
+    if ("label_frequency" in session):
+        label_freq = session['label_frequency']
+    else:
+        label_freq = 1
+        session['label_frequency'] = 1
+    if ("eeg_model_name" in session):
+        eeg_name = session['eeg_model_name']
+    else:
+        eeg_name = "defaulteeg"
+        session['eeg_model_name'] = "defaulteeg"
+    if ("cv_model_name" in session):
+        cv_name = session['cv_model_name']
+    else:
+        cv_name = "defaultcv"
+        session['cv_model_name'] = "defaultcv"
+    return render_template('index.html',
+                            eeg_valid = eeg_b,
+                            cv_valid =  cv_b,
+                            eeg_name = eeg_name,
+                            cv_name = cv_name,
+                            label_freq = label_freq)
+
 @app.route('/')
 def index():
-    return render_template('index.html', eeg_valid=("eeg_path" in session), cv_valid = ("cv_path" in session))
+    return render_home()
 
 @app.route('/',methods=["POST"]) 
 def upload_file():
@@ -22,21 +47,34 @@ def upload_file():
     if 'video' in uploaded_file.content_type:
         uploaded_file.save(os.path.join("uploads/", uploaded_file.filename))
         just_name = Path(uploaded_file.filename).stem
-        subprocess.call([sys.executable, '../modelRunner.py', '-n', 'defaultcv', '-d', f'uploads/{uploaded_file.filename}'])
+        subprocess.call([sys.executable, '../modelRunner.py', '-n', f'{session["cv_model_name"]}', '-d', f'uploads/{uploaded_file.filename}'])
         session["cv_path"] = f"./output/default-mtcnn-{just_name}.json"
         session["raw_video_path"] = "uploads/" + uploaded_file.filename
     elif "npy" in uploaded_file.filename:
         uploaded_file.save(os.path.join("uploads/", uploaded_file.filename))
         just_name = Path(uploaded_file.filename).stem
-        subprocess.call([sys.executable, '../modelRunner.py', '-n', 'defaulteeg', '-d', f'uploads/{uploaded_file.filename}'])
+        subprocess.call([sys.executable, '../modelRunner.py', '-n', f'{session["eeg_model_name"]}', '-d', f'uploads/{uploaded_file.filename}'])
         session["eeg_path"] = f"./output/default-eeg-{just_name}.json"
     
-    return render_template('index.html', eeg_valid=("eeg_path" in session), cv_valid = ("cv_path" in session))
+    return render_home()
+
+@app.route('/set_parameter', methods=["POST"]) 
+def set_parameter():
+    print(request.get_data())
+    session['label_frequency'] = request.form['output_frequency']
+    session['cv_model_name'] = request.form['cv-model']
+    session['eeg_model_name'] = request.form['eeg-model']
+    return render_home()
+
+@app.route('/clear_session')
+def clear():
+    session.clear_session()
+    return render_home()
 
 @app.route('/run')
 def run():
     if not "eeg_path" in session and not "cv_path" in session:
-        return render_template('index.html', eeg_valid = ("eeg_path" in session), cv_valid = ("cv_path" in session))
+        return render_home()
     elif not "eeg_path" in session:
         cv_data = ""
         with open(session["cv_path"]) as fd:
