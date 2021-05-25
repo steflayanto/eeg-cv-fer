@@ -68,7 +68,7 @@ def set_parameter():
 
 @app.route('/clear_session')
 def clear():
-    session.clear_session()
+    session.clear()
     return render_home()
 
 @app.route('/run')
@@ -96,7 +96,12 @@ def run():
         with open(session["eeg_path"]) as fd:
             eeg_data = json.load(fd)
             print(eeg_data)
-        return render_template('playback.html', eeg_data=json.dumps(eeg_data), cv_data=json.dumps(cv_data), video_path=session["raw_video_path"])
+        subprocess.call([sys.executable, '../modelRunner.py', '-n', 'joint', '-c', f'{session["cv_path"]}', '-e', f'{session["eeg_path"]}'])
+        combined_data_path = f"./output/joint-{session['eeg_model_name']}-{session['cv_model_name']}.json"
+        with open(combined_data_path) as fd:
+            combined_data = json.load(fd)
+            print(combined_data)
+        return render_template('playback.html', eeg_data=json.dumps(eeg_data), cv_data=json.dumps(cv_data), video_path=session["raw_video_path"], combined_data=json.dumps(combined_data))
 
 @app.route('/uploads/<filename>')
 def send_file(filename):
