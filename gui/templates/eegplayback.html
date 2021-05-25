@@ -39,7 +39,7 @@
               min : -1.5,
               title: {
                 display: true,
-                text: 'Arousal'
+                text: 'Valence'
               }
       },
       x : {
@@ -47,21 +47,20 @@
               min : -.5,
               title: {
                 display: true,
-                text: 'Valence'
+                text: 'Time'
               }
       }
     },
     plugins: {
       legend: {
           display: true,
-          labels: {
-              color: 'rgb(255, 99, 132)'
-          }
       }
     }
   };
   const datascatter = {
+    labels: ["High Arousal", "Low Arousal"],
     datasets: [{
+      label: "High Arousal",
       data: [
         {
           x:0,
@@ -69,6 +68,16 @@
         }
       ],
       backgroundColor: [],
+      pointRadius: 5,
+    }, {
+      label: "Low Arousal",
+      data: [
+        {
+          x:0,
+          y:0
+        }
+      ],
+      backgroundColor: ["rgb(0, 128, 0)"],
       pointRadius: 5,
     }],
   };
