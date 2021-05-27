@@ -114,7 +114,7 @@ class EEGDCNNModel(AbstractModel):
     # output data as json
     json_data = dict()
     for i in range(len(preds)):
-      json_data[i] = int(preds[i])
+      json_data[i / sample_rate] = int(preds[i])
     json_dict = dict()
     json_dict["metadata"] = {"dataPath": "s01_trial01", "eegLabelFrequency":"1", "eegModelName":"defaulteeg"}
     json_dict["data"] = json_data

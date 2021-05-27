@@ -34,13 +34,14 @@ def parse_args(argv):
             model_name = arg
         elif opt in ("-l", "--labelFrequency"):
             try:
-                sample_rate = int(arg)
+                #sample_rate = int(arg)
+                sample_rate = float(arg)
                 if not sample_rate:
                     print("Error parsing labelFrequency: ", arg)
                     sys.exit()
-                if sample_rate < 1:
-                    print("Invalid sample rate:", sample_rate)
-                    sys.exit()
+                # if sample_rate < 1:
+                #     print("Invalid sample rate:", sample_rate)
+                #     sys.exit()
             except Exception as e:
                 print("Error parsing labelFrequency: ", e)
                 sys.exit()
