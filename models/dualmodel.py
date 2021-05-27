@@ -43,9 +43,9 @@ class DualModel:
             return arousal <= 0 and valence <= 0
         elif eegQuadrant == 1:
             return arousal >= 0 and valence <= 0
-        elif eegQuadrant == 2:
-            return arousal >= 0 and valence >= 0
         elif eegQuadrant == 3:
+            return arousal >= 0 and valence >= 0
+        elif eegQuadrant == 2:
             return arousal <= 0 and valence >= 0
         else:
             print("ERROR")
