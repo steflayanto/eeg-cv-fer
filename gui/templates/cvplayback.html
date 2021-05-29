@@ -76,7 +76,7 @@
     cvChart.data.datasets[0].data = Object.values(cvData[i]);
     i++;
     cvChart.update();
-  }, 1000);
+  }, parseInt('{{ playback_interval_ms|safe }}'));
 </script>
 </body>
 </html>
