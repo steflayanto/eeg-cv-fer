@@ -15,7 +15,7 @@
 <body>
 <div class="container" style="width: 75%; height: 80%;margin: auto; overflow:hidden">
   <div style="box-sizing: border-box;padding:10px; float: left; width: 50%; height: 50%">
-    <video width="100%" height ="100%" autoplay muted>
+    <video width="100%" height ="100%" muted id="vid_container">
       <source src="{{ video_path }}" type="video/mp4" id="vid">
     </video>
   </div>
@@ -40,45 +40,19 @@
   cvData = Object.values(rawCVData.data)
   var i = 0;
   var scatterOptions = {
-    responsive: true,
-    showLine: true,
-    scales: {
-      y : {
-              max : 1.5,    
-              min : -1.5,
-              title: {
-                display: true,
-                text: 'Arousal'
-              }
-      },
-      x : {
-              max : 1.5,    
-              min : -1.5,
-              title: {
-                display: true,
-                text: 'Valence'
-              }
-      }
-    },
-    plugins: {
-      legend : {
-        display : false
-      }
-    }
+    responsive: false,
   };
   const datascatter = {
   datasets: [{
-    data: [{
-      x: 0,
-      y: 0
-    }],
-    backgroundColor: 'rgb(255, 99, 132)'
+    data: [25, 25, 25, 25],
+    backgroundColor: ['rgb(255, 0, 0)', 'rgb(170, 170, 170)', 'rgb(170, 170, 170)', 'rgb(170, 170, 170)'],
+    clip: 0,
   }],
 };
 
   var eegChartSource= document.getElementById("eeg").getContext("2d");
   var eegChart = new Chart(eegChartSource, {
-  type:'scatter', 
+  type:'pie', 
   data: datascatter,
   options: scatterOptions
   });
@@ -123,34 +97,34 @@
   let div = document.getElementById('bs_div');
   let text = document.getElementById('bs_score');
   text.innerHTML = rawscore + "%";
+  var vid = document.getElementById("vid_container");
+  vid.play();
 
   var interv = setInterval( function() {
-    if (i > eegData.length || i > cvChart.data.datasets[0].data.length) {
-      clearInterval(interv)
+    if (i > eegData.length || i > cvData.length) {
+      vid.pause();
+      clearInterval(interv);
     }
-    if (i < eegData.length) {
-      let curEEG = eegData[i];
-      if (curEEG == 0) {
-        eegChart.data.datasets[0].data[0].x = -.8;
-        eegChart.data.datasets[0].data[0].y = -.8;
-      }
-      if (curEEG == 1) {
-        eegChart.data.datasets[0].data[0].x = -.8;
-        eegChart.data.datasets[0].data[0].y = .8;
-      }
-      if (curEEG == 2) {
-        eegChart.data.datasets[0].data[0].x = .8;
-        eegChart.data.datasets[0].data[0].y = -.8;
-      }
-      if (curEEG == 3) {
-        eegChart.data.datasets[0].data[0].x = .8;
-        eegChart.data.datasets[0].data[0].y = .8;
-      }
-      cvChart.data.datasets[0].data = Object.values(cvData[i]);
+    let curEEG = eegData[i];
+    if (curEEG == 0) {
+      eegChart.data.datasets[0].backgroundColor = ['rgb(170, 170, 170)', 'rgb(170, 170, 170)', 'rgb(170, 170, 170)', 'rgb(255, 0, 0)'];
+      eegChart.data.datasets[0].data = [25, 25, 25, 30];
     }
+    if (curEEG == 1) {
+      eegChart.data.datasets[0].backgroundColor = ['rgb(170, 170, 170)', 'rgb(255, 0, 0)', 'rgb(170, 170, 170)', 'rgb(170, 170, 170)'];
+      eegChart.data.datasets[0].data = [25, 30, 25, 25];
+    }
+    if (curEEG == 2) {
+      eegChart.data.datasets[0].backgroundColor = ['rgb(170, 170, 170)', 'rgb(170, 170, 170)', 'rgb(255, 0, 0)', 'rgb(170, 170, 170)'];
+      eegChart.data.datasets[0].data = [25, 25, 30, 25];
+    }
+    if (curEEG == 3) {
+      eegChart.data.datasets[0].backgroundColor = ['rgb(255, 0, 0)', 'rgb(170, 170, 170)', 'rgb(170, 170, 170)', 'rgb(170, 170, 170)'];
+      eegChart.data.datasets[0].data = [30, 25, 25, 25];
+    }
+    cvChart.data.datasets[0].data = Object.values(cvData[i]);
+    
     i++;
-
-
     eegChart.update();
     cvChart.update();
   }, parseInt('{{ playback_interval_ms|safe }}'));
