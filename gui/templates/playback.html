@@ -124,7 +124,10 @@
   let text = document.getElementById('bs_score');
   text.innerHTML = rawscore + "%";
 
-  setInterval( function() {
+  var interv = setInterval( function() {
+    if (i > eegData.length || i > cvChart.data.datasets[0].data.length) {
+      clearInterval(interv)
+    }
     if (i < eegData.length) {
       let curEEG = eegData[i];
       if (curEEG == 0) {
@@ -150,7 +153,7 @@
 
     eegChart.update();
     cvChart.update();
-  }, 1000);
+  }, parseInt('{{ playback_interval_ms|safe }}'));
 </script>
 </body>
 </html>

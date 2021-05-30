@@ -76,6 +76,9 @@ class EEGDCNNModel(AbstractModel):
         # convert to frequency domain
         fft_channel = np.abs(rfft(channel_data))
         fftfreq_channel = rfftfreq(channel_data.size, 1/ data_frequency)
+        # fft_channel_normalized = np.fft.fftshift(fft_channel / channel_data.size)
+        # power_spectrum = np.square(fft_channel_normalized)
+        # power = np.sum(power_spectrum)
         # identify frequency ranges
         one_freq = np.where(fftfreq_channel == 1)[0][0]
         eight_freq = np.where(fftfreq_channel == 8)[0][0]
@@ -83,11 +86,11 @@ class EEGDCNNModel(AbstractModel):
         thirty_freq = np.where(fftfreq_channel == 30)[0][0]
         fourtyfive_freq = np.where(fftfreq_channel == 45)[0][0]
         # make bins for frequency ranges
-        alpha_bin = fft_channel[one_freq:eight_freq]
-        beta_bin = fft_channel[eight_freq:fourteen_freq]
-        theta_bin = fft_channel[fourteen_freq:thirty_freq]
+        theta_bin = fft_channel[one_freq:eight_freq]
+        alpha_bin = fft_channel[eight_freq:fourteen_freq]
+        beta_bin = fft_channel[fourteen_freq:thirty_freq]
         gamma_bin = fft_channel[thirty_freq:fourtyfive_freq]
-        all_bins = [alpha_bin, beta_bin, theta_bin, gamma_bin]
+        all_bins = [theta_bin, alpha_bin, beta_bin, gamma_bin]
         transformed_channel.append(all_bins)
       binned_pcc_matrix = np.ones((4, channels_total, channels_total)) # 4, 32, 32
       for bin_num in range(4):
@@ -116,7 +119,7 @@ class EEGDCNNModel(AbstractModel):
     for i in range(len(preds)):
       json_data[i / sample_rate] = int(preds[i])
     json_dict = dict()
-    json_dict["metadata"] = {"dataPath": "s01_trial01", "eegLabelFrequency":"1", "eegModelName":"defaulteeg"}
+    json_dict["metadata"] = {"dataPath": data_path, "eegLabelFrequency": str(sample_rate), "eegModelName":"defaulteeg"}
     json_dict["data"] = json_data
     with open('./defaulteeg.json', "w+") as outfile: 
        json.dump(json_dict, outfile)

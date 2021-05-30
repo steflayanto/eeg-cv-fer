@@ -90,6 +90,7 @@ def clear():
 # where we display the data to the user.
 @app.route('/run')
 def run():
+    playback_interval_ms = (1.0 / float(session["label_frequency"])) * 1000.0
     if not "raw_eeg_path" in session and not "raw_video_path" in session:
         return render_home()
     elif not "raw_eeg_path" in session:
@@ -98,14 +99,19 @@ def run():
         with open(session["cv_path"]) as fd:
             cv_data = json.load(fd)
             print(cv_data)
-        return render_template('cvplayback.html', cv_data=json.dumps(cv_data), video_path=session["raw_video_path"])
+        return render_template('cvplayback.html',
+                                cv_data=json.dumps(cv_data),
+                                video_path=session["raw_video_path"],
+                                playback_interval_ms=playback_interval_ms)
     elif not "raw_video_path" in session:
         process_eeg(session['raw_eeg_path'])
         eeg_data = ""
         with open(session["eeg_path"]) as fd:
             eeg_data = json.load(fd)
             print(eeg_data)
-        return render_template('eegplayback.html', eeg_data=json.dumps(eeg_data))
+        return render_template('eegplayback.html',
+                                eeg_data=json.dumps(eeg_data),
+                                playback_interval_ms=playback_interval_ms)
     else:
         process_cv(session['raw_video_path'])
         process_eeg(session['raw_eeg_path'])
@@ -122,7 +128,12 @@ def run():
         with open(combined_data_path) as fd:
             combined_data = json.load(fd)
             print(combined_data)
-        return render_template('playback.html', eeg_data=json.dumps(eeg_data), cv_data=json.dumps(cv_data), video_path=session["raw_video_path"], combined_data=json.dumps(combined_data))
+        return render_template('playback.html',
+                                eeg_data=json.dumps(eeg_data),
+                                cv_data=json.dumps(cv_data),
+                                video_path=session["raw_video_path"],
+                                combined_data=json.dumps(combined_data),
+                                playback_interval_ms=playback_interval_ms)
 
 # Handles requested video files from the user.
 @app.route('/uploads/<filename>')
