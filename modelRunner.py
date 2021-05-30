@@ -5,6 +5,7 @@ from models.interface import DefaultCVModel, RandomCVModel
 from models.eegdcnnmodel import EEGDCNNModel
 from models.dualmodel import DualModel
 from models.eegpower import EEGPower
+from models.eegrandom import RandomEEGModel
 
 usage = "Usage:\n\tmodelRunner.py [-n, --modelName] defaultcv [-l, --labelFrequency] 2 [-f, --dataFrequency] 2 [-d, --dataPath] video_or_eegfilename \nOR\n\tmodelRunner.py -n dual [-c, --cvPath] defaultcv.json [-e, --eegPath] defaulteeg.json"
 
@@ -94,6 +95,18 @@ if __name__ == "__main__":
             model = RandomCVModel(sample_rate=sample_rate)
         else:
             model = RandomCVModel()
+        model.run(data_path)
+    
+    elif model_name == "randomeeg": # Random EEG Model
+        print('Running model: {}, at frequency {} Hz, on data: {}'.format(model_name, sample_rate, data_path))
+        if sample_rate and data_freq:
+            model = RandomEEGModel(sample_rate=sample_rate, data_frequency=data_freq)
+        elif sample_rate:
+            model = RandomEEGModel(sample_rate=sample_rate)
+        elif data_freq:
+            model = RandomEEGModel(data_frequency=data_freq)
+        else:
+            model = RandomEEGModel()
         model.run(data_path)
 
     elif model_name == "defaulteeg": # Default EEG Model
