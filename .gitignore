@@ -130,3 +130,5 @@ dmypy.json
 
 #File uploads
 flask_session/
+
+*.json
