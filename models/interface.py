@@ -34,7 +34,7 @@ class DefaultCVModel(AbstractModel):
     #     self.write_output(video_name, self.sample_rate, self.name, data, write=True)
 
     def run(self, data_path): # "s01_trial01.avi"
-        data = self.detect_emotions_from_video(self.detector, self.DATA_PATH + data_path, sample_rate=1)
+        data = self.detect_emotions_from_video(self.detector, self.DATA_PATH + data_path, sample_rate=self.sample_rate)
         # detect_still_img(detector, read_img("3-people.jpg"))
         data_path = Path(data_path).stem 
         self.write_output(data_path, self.sample_rate, self.name, data, write=True)
@@ -112,6 +112,7 @@ class DefaultCVModel(AbstractModel):
             i += 1
         # print(data)
         video.release()    
+        data.popitem()
         return data
 
     """
