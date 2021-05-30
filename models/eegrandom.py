@@ -58,7 +58,7 @@ class RandomEEGModel(AbstractModel):
     for i in range(len(final_data)):
       json_data[i / sample_rate] = final_data[i]
     json_dict = dict()
-    json_dict["metadata"] = {"dataPath": data_path, "eegLabelFrequency":str(sample_rate), "eegModelName":"defaulteegpower"}
+    json_dict["metadata"] = {"dataPath": data_path, "eegLabelFrequency":str(sample_rate), "eegModelName":"randomeeg"}
     json_dict["data"] = json_data
     with open('./randomeeg.json', "w+") as outfile: 
       json.dump(json_dict, outfile)
