@@ -91,7 +91,7 @@
       out = 1
     }
 
-    datascatter.datasets[0].data.push({x: parseInt(key) + 1, y: out})
+    datascatter.datasets[0].data.push({x: parseFloat(key) + 1, y: out})
 
     if (value == 0 || value == 2) {
       datascatter.datasets[0].backgroundColor.push("rgb(255, 0, 0)")
