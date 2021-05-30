@@ -96,7 +96,8 @@ class DualModel:
         # print(cv_data, "\n-----------------------------------------\n" ,eeg_data)
         #assert len(cv_trial) == len(eeg_trial), f"Invalid lengths. cv:{len(cv_trial)} and eeg:{len(eeg_trial)}"
 
-        match_count = 0
+        match_count, non_match_count = 0,0
+        # total = 0
         # print(cv_trial.keys())
         for key in cv_trial.keys():
             arousal, valence = self.cat_to_av(cv_trial[key])
@@ -105,10 +106,13 @@ class DualModel:
                 break
             eeg_quadrant = eeg_trial[str(float(key))]
             data[key] = arousal, valence, eeg_quadrant, self.check_match(arousal, valence, eeg_quadrant)
-            if data[key][2]:
+            # total += 1
+            if data[key][3]:
                 match_count += 1
+            # else:
+                # non_match_count += 1
             # print(data[key])
-
+        # print("Corrects:{} Wrong:{} Total:{}".format(match_count, non_match_count, total))
         metadata['bsScore'] = match_count / len(cv_trial)
         # print(metadata)
         # print(data)
