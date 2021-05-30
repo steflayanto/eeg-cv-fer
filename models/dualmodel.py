@@ -55,11 +55,11 @@ class DualModel:
         cv_data, eeg_data = dict(), dict()
 
         with open(self.DATA_PATH + eegPath, "r") as infile1: 
-            # print("Reading", DATA_PATH + f"{eegModelName}-{eegDataPath}.json")
+            print("Reading", self.DATA_PATH + eegPath)
             eeg_data = json.load(infile1)
         
         with open(self.DATA_PATH + cvPath, "r") as infile2: 
-            # print("Reading", DATA_PATH + f"{cvModelName}-{cvDataPath}.json")
+            print("Reading", self.DATA_PATH + cvPath)
             cv_data = json.load(infile2)
         # print(cv_data)
         # print(eeg_data)
@@ -78,7 +78,7 @@ class DualModel:
 
 
     def process_data(self, cv_data, eeg_data):
-        # print("Processing data")
+        print("Processing data")
         metadata, data = dict(), dict()
 
         # Create "metadata": {"eegDataPath": "s01_trial01.npy", "cvDataPath":"s01_trial01.avi", "eegLabelFrequency": "1", "eegModelName": "default", "cvLabelFrequency": "1", "cvModelName": "default", "bsScore": 0.2}, 
@@ -97,12 +97,13 @@ class DualModel:
         #assert len(cv_trial) == len(eeg_trial), f"Invalid lengths. cv:{len(cv_trial)} and eeg:{len(eeg_trial)}"
 
         match_count = 0
+        # print(cv_trial.keys())
         for key in cv_trial.keys():
             arousal, valence = self.cat_to_av(cv_trial[key])
-            if (str(int(float(key))) not in eeg_trial.keys()):
-                # print("Did  not find key for", key)
+            if (str(float(key)) not in eeg_trial.keys()):
+                print("Warning: Did not find key in eeg for", key)
                 break
-            eeg_quadrant = eeg_trial[str(int(float(key)))]
+            eeg_quadrant = eeg_trial[str(float(key))]
             data[key] = arousal, valence, eeg_quadrant, self.check_match(arousal, valence, eeg_quadrant)
             if data[key][2]:
                 match_count += 1
