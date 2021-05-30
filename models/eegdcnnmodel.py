@@ -65,7 +65,7 @@ class EEGDCNNModel(AbstractModel):
     windows = int((time_total / data_frequency) * sample_rate)
     final_data = []
     # sliding window is 8 because thats what the window was when training
-    train_sliding_window = 8
+    train_sliding_window = 4
     # loops through all the windows
     for i in range(windows - train_sliding_window):
       time_window = self.data[:, int((data_frequency * i) / sample_rate): int((data_frequency * (i + train_sliding_window)) / sample_rate)]
