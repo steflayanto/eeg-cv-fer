@@ -49,7 +49,9 @@ def index():
 # in the session.
 def process_eeg(eeg_path):
     subprocess.call([sys.executable, '../modelRunner.py', '-l', f'{session["label_frequency"]}', '-n', f'{session["eeg_model_name"]}', '-d', f'{eeg_path}'])
+    subprocess.call([sys.executable, '../modelRunner.py', '-l', f'{session["label_frequency"]}', '-n', 'defaulteegpower', '-d', f'{eeg_path}'])
     session["eeg_path"] = f"./{session['eeg_model_name']}.json"
+    session["eeg_power_path"] = "./defaulteegpower.json"
 
 # CV classifier processing function. Calls the modelRunner script for CV, and stores the classifier output
 # in the session.
@@ -109,8 +111,12 @@ def run():
         with open(session["eeg_path"]) as fd:
             eeg_data = json.load(fd)
             print(eeg_data)
+        with open(session["eeg_power_path"]) as fd:
+            eeg_power_data = json.load(fd)
+            print(eeg_power_data)
         return render_template('eegplayback.html',
                                 eeg_data=json.dumps(eeg_data),
+                                eeg_power_data=json.dumps(eeg_power_data),
                                 playback_interval_ms=playback_interval_ms)
     else:
         process_cv(session['raw_video_path'])

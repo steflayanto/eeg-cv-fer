@@ -16,11 +16,9 @@
 <div class="container">
   <div class="row">
     <div class="col">
-      <div style="width: 80%; margin: auto">
+      <div style="width: 100%; margin: auto">
       <br>
-      <div width="1400" height="600">
-      <canvas id="eeg" width="1400" height="600"></canvas>
-      </div>
+      <canvas id="eeg" width="1400" height="600" style="display: flex; margin:auto"></canvas>
       </div>
     </div>
   </div>
@@ -29,22 +27,23 @@
 <script>
   // Get the context of the canvas element we want to select
   var rawEEGData = JSON.parse('{{ eeg_data|safe }}');
+  var rawPowerData = JSON.parse('{{ eeg_power_data|safe }}');
   var i = 0;
   var scatterOptions = {
     responsive: false,
     showLine: true,
     scales: {
       y : {
-              max : 1.5,    
-              min : -1.5,
+              max : 10,    
+              min : 0,
               title: {
                 display: true,
-                text: 'Valence'
+                text: 'Power'
               }
       },
       x : {
-              max : 61,    
-              min : -.5,
+              max : 60,    
+              min : 0,
               title: {
                 display: true,
                 text: 'Time'
@@ -58,54 +57,56 @@
     }
   };
   const datascatter = {
-    labels: ["High Arousal", "Low Arousal"],
     datasets: [{
-      label: "High Arousal",
-      data: [
-        {
-          x:0,
-          y:0
-        }
-      ],
-      backgroundColor: ["rgb(255, 0, 0)"],
+      type: "bubble",
+      backgroundColor: 'rgb(255, 0, 0)',
       pointRadius: 5,
+      label: "Theta (4-8 Hz)",
+      data: [ {
+      }
+      ],
     }, {
-      label: "Low Arousal",
-      data: [
-        {
-          x:0,
-          y:0
-        }
-      ],
-      backgroundColor: ["rgb(0, 128, 0)"],
+      type: "bubble",
+      backgroundColor: 'rgb(0, 255, 0)',
       pointRadius: 5,
-    }],
+      label: "Alpha (8-14 Hz)",
+      data: [ {
+      }],
+    }, {
+      type: "bubble",
+      backgroundColor: 'rgb(0, 0, 255)',
+      pointRadius: 5,
+      label: "Beta (14-35 Hz)",
+      data: [ {
+      }],
+    }, {
+      type: "bubble",
+      backgroundColor: 'rgb(0, 255, 255)',
+      pointRadius: 5,
+      label: "Gamma (35-45 Hz)",
+      data: [ {
+      }],
+    },
+  ],
   };
 
-  for (const [key, value] of Object.entries(rawEEGData.data)) {
-    out = 0
-    if (value == 0 || value== 1) {
-      out = -1
-    }
-    if (value == 2 || value == 3) {
-      out = 1
-    }
+  var channel = 1;
+  for (const [key, value] of Object.entries(rawPowerData.data)) {
+    time = key;
+    var vals = Object.values(value)[channel];
 
-    datascatter.datasets[0].data.push({x: parseFloat(key) + 1, y: out})
 
-    if (value == 0 || value == 2) {
-      datascatter.datasets[0].backgroundColor.push("rgb(255, 0, 0)")
-    }
-    if (value == 1 || value == 3) {
-      datascatter.datasets[0].backgroundColor.push("rgb(0, 128, 0)")
-    }
+    datascatter.datasets[0].data.push({x: parseFloat(time), y: parseFloat(vals.theta)});
+    datascatter.datasets[1].data.push({x: parseFloat(time), y: parseFloat(vals.alpha)});
+    datascatter.datasets[2].data.push({x: parseFloat(time), y: parseFloat(vals.beta)});
+    datascatter.datasets[3].data.push({x: parseFloat(time), y: parseFloat(vals.gamma)});
+
   }
 
   var eegChartSource= document.getElementById("eeg").getContext("2d");
   var eegChart = new Chart(eegChartSource, {
-  type:'scatter', 
-  data: datascatter,
-  options: scatterOptions
+    data: datascatter,
+    options: scatterOptions
   });
 
     eegChart.update();
