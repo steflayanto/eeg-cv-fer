@@ -44,7 +44,7 @@ class EEGPower(AbstractModel):
     time_total = self.data.shape[1]
     windows = int((time_total / data_frequency) * sample_rate)
     final_data = []
-    # sliding window is 8 because thats what the window was when training
+    # sliding window is 1 because thats what the window was when training
     train_sliding_window = 1
     # loops through all the windows
     for i in range(windows - train_sliding_window):
@@ -72,7 +72,7 @@ class EEGPower(AbstractModel):
         all_bins = [np.sum(theta_bin), np.sum(alpha_bin), np.sum(beta_bin), np.sum(gamma_bin)]
         bins.append(all_bins)
       final_data.append(bins)
-    # makes last 8 sec the same as the last output
+    # makes last 1 sec the same as the last output
     for i in range(min(windows, train_sliding_window)):
       final_data.append(bins)
     # self.data = torch.tensor(final_data).float()
