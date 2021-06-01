@@ -16,6 +16,7 @@
     <li class="status-no status"></li>CV File Not Uploaded
     {%  endif %}
     <li>Model Frequency: {{label_freq}} Hz</li>
+    <li>Power Channel: {{power_channel}}</li>
     <li>EEG Model: {{eeg_name}}</li>
     <li>CV Model: {{cv_name}}</li>
   </ul>
@@ -47,6 +48,10 @@
       <input class="form-control" type="text" name="output_frequency" placeholder="Enter Frequency (Hz)" value="1">
     </div>
     <div class="form-group">
+      <label for="firstname">Power Channel Display</label>
+      <input class="form-control" type="text" name="power_channel_display" placeholder="Enter Channel (0-31)" value="1">
+    </div>
+    <div class="form-group">
       <label for="eeg-model">EEG Model</label>
       <select class="form-control" type="text" name="eeg-model">
         <option value="defaulteeg">Default</option>
@@ -66,9 +71,6 @@
   </form>
 </div>
 </div>
-<form action="/">
-  <button type="submit" class="submit-file-trigger">Home</button>
-</form>
 <script>
   document.querySelector("html").classList.add('js');
 

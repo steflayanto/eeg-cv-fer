@@ -22,6 +22,11 @@ def render_home():
     else:
         label_freq = "1"
         session['label_frequency'] = "1"
+    if ("power_channel_display" in session):
+        power_channel = session['power_channel_display']
+    else:
+        power_channel = "1"
+        session['power_channel_display'] = "1"
     if ("eeg_model_name" in session):
         eeg_name = session['eeg_model_name']
     else:
@@ -38,7 +43,8 @@ def render_home():
                             cv_valid =  cv_b,
                             eeg_name = eeg_name,
                             cv_name = cv_name,
-                            label_freq = label_freq)
+                            label_freq = label_freq,
+                            power_channel = power_channel)
 
 # Index page
 @app.route('/')
@@ -80,6 +86,7 @@ def set_parameter():
     session['label_frequency'] = request.form['output_frequency']
     session['cv_model_name'] = request.form['cv-model']
     session['eeg_model_name'] = request.form['eeg-model']
+    session['power_channel_display'] = request.form['power_channel_display']
     return render_home()
 
 # Clears the session of any previously stored values.
@@ -117,7 +124,8 @@ def run():
         return render_template('eegplayback.html',
                                 eeg_data=json.dumps(eeg_data),
                                 eeg_power_data=json.dumps(eeg_power_data),
-                                playback_interval_ms=playback_interval_ms)
+                                playback_interval_ms=playback_interval_ms,
+                                power_channel = session["power_channel_display"])
     else:
         process_cv(session['raw_video_path'])
         process_eeg(session['raw_eeg_path'])

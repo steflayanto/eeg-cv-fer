@@ -34,7 +34,7 @@
     showLine: true,
     scales: {
       y : {
-              max : 10,    
+              max : 12,    
               min : 0,
               title: {
                 display: true,
@@ -90,11 +90,10 @@
   ],
   };
 
-  var channel = 1;
+  var channel = parseInt("{{power_channel}}");
   for (const [key, value] of Object.entries(rawPowerData.data)) {
     time = key;
     var vals = Object.values(value)[channel];
-
 
     datascatter.datasets[0].data.push({x: parseFloat(time), y: parseFloat(vals.theta)});
     datascatter.datasets[1].data.push({x: parseFloat(time), y: parseFloat(vals.alpha)});
