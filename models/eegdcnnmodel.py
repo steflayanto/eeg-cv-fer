@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-from models.interface import AbstractModel
+try:
+  from models.interface import AbstractModel
+except:
+  from interface import AbstractModel
 
 import torch
 import torch.nn.functional as F
@@ -25,6 +28,7 @@ from pathlib import Path
 
 class EEGDCNNModel(AbstractModel):
   DATA_PATH = "./"
+  OUTPUT_PATH = "./"
 
   def __init__(self, sample_rate=1, data_frequency=128):
     model = nn.Sequential(
@@ -121,9 +125,32 @@ class EEGDCNNModel(AbstractModel):
     json_dict = dict()
     json_dict["metadata"] = {"dataPath": data_path, "eegLabelFrequency": str(sample_rate), "eegModelName":"defaulteeg"}
     json_dict["data"] = json_data
-    with open('./defaulteeg.json', "w+") as outfile: 
+    with open(self.OUTPUT_PATH + 'defaulteeg.json', "w+") as outfile: 
        json.dump(json_dict, outfile)
 
+def test_output_format_eeg():
+    model = EEGDCNNModel(sample_rate=2)
+    model.OUTPUT_PATH = './output/'
+    print("Testing output format")
+    model.run('uploads/dev/s01_trial01.dat')
+    output = json.load(open('output/defaulteeg.json', 'r'))
+    # print(type(output), output)
+    assert set(output.keys()) == set(['metadata', 'data']), "Error: wrong keys in output json: " + str(output.keys())
+    assert "59.0" in output['data'].keys() and '58.5' in output['data'].keys(), "Error with timestamps: " + str(output['data'].keys())
+    print("Passed output test")
+
+def test_parameters_eeg():
+    print("Testing model parameters")
+    model = EEGDCNNModel(sample_rate=4)
+    model.OUTPUT_PATH = './output/'
+    model.run('uploads/dev/s01_trial01.dat')
+    output = json.load(open('output/defaulteeg.json', 'r'))
+    assert str(output['metadata']['eegLabelFrequency']) == '4', "Error setting eegLabelFrequency: " + str(output['metadata'])
+    print("Passed parameter test")
+
+
 if __name__ == "__main__":
-  test_run = EEGDCNNModel(sample_rate=1, data_frequency=128)
-  test_run.run('s01_trial01.dat')
+  # test_run = EEGDCNNModel(sample_rate=1, data_frequency=128)
+  # test_run.run('s01_trial01.dat')
+  test_output_format_eeg()
+  test_parameters_eeg()
