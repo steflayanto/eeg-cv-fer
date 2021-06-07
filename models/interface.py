@@ -11,20 +11,22 @@ DATA_PATH = "./"
 # Unit Tests (there isn't much to test)
 def test_output_format():
     model = DefaultCVModel(sample_rate=2, verbose=True)
+    model.OUTPUT_PATH = './output/'
     print("Testing output format")
-    model.run('./uploads/dev/s01_trial01.avi')
+    model.run('uploads/dev/s01_trial01.avi')
     output = json.load(open('output/defaultcv.json', 'r'))
     # print(type(output), output)
     assert set(output.keys()) == set(['metadata', 'data']), "Error: wrong keys in output json: " + str(output.keys())
-    assert "60.0" in output['data'].keys() and '0.0' in output['data'].keys(), "Error with timestamps: " + str(output['data'].keys())
+    assert "59.0" in output['data'].keys() and '58.5' in output['data'].keys(), "Error with timestamps: " + str(output['data'].keys())
     print("Passed output test")
 
 def test_parameters():
     print("Testing model parameters")
-    model = DefaultCVModel(sample_rate=2, verbose=True)
-    model.run('./uploads/dev/s01_trial01.avi')
+    model = DefaultCVModel(sample_rate=4, verbose=True)
+    model.OUTPUT_PATH = './output/'
+    model.run('uploads/dev/s01_trial01.avi')
     output = json.load(open('output/defaultcv.json', 'r'))
-    assert output['metadata']['cvLabelFrequency'] == 2, "Error setting cvLabelFrequency: " + str(output['metadata'])
+    assert output['metadata']['cvLabelFrequency'] == 4, "Error setting cvLabelFrequency: " + str(output['metadata'])
     print("Passed parameter test")
 
 class AbstractModel:
