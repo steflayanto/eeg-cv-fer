@@ -9,7 +9,7 @@ from pathlib import Path
 DATA_PATH = "./"
 
 # Unit Tests (there isn't much to test)
-def test_output_format():
+def test_output_format_cv():
     model = DefaultCVModel(sample_rate=2, verbose=True)
     model.OUTPUT_PATH = './output/'
     print("Testing output format")
@@ -20,14 +20,15 @@ def test_output_format():
     assert "59.0" in output['data'].keys() and '58.5' in output['data'].keys(), "Error with timestamps: " + str(output['data'].keys())
     print("Passed output test")
 
-def test_parameters():
+def test_parameters_cv():
     print("Testing model parameters")
     model = DefaultCVModel(sample_rate=4, verbose=True)
     model.OUTPUT_PATH = './output/'
     model.run('uploads/dev/s01_trial01.avi')
     output = json.load(open('output/defaultcv.json', 'r'))
-    assert output['metadata']['cvLabelFrequency'] == 4, "Error setting cvLabelFrequency: " + str(output['metadata'])
+    assert str(output['metadata']['cvLabelFrequency']) == '4', "Error setting cvLabelFrequency: " + str(output['metadata'])
     print("Passed parameter test")
+
 
 class AbstractModel:
     DATA_PATH = "./"
