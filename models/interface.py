@@ -8,6 +8,25 @@ from pathlib import Path
 
 DATA_PATH = "./"
 
+# Unit Tests (there isn't much to test)
+def test_output_format():
+    model = DefaultCVModel(sample_rate=2, verbose=True)
+    print("Testing output format")
+    model.run('./uploads/dev/s01_trial01.avi')
+    output = json.load(open('output/defaultcv.json', 'r'))
+    # print(type(output), output)
+    assert set(output.keys()) == set(['metadata', 'data']), "Error: wrong keys in output json: " + str(output.keys())
+    assert "60.0" in output['data'].keys() and '0.0' in output['data'].keys(), "Error with timestamps: " + str(output['data'].keys())
+    print("Passed output test")
+
+def test_parameters():
+    print("Testing model parameters")
+    model = DefaultCVModel(sample_rate=2, verbose=True)
+    model.run('./uploads/dev/s01_trial01.avi')
+    output = json.load(open('output/defaultcv.json', 'r'))
+    assert output['metadata']['cvLabelFrequency'] == 2, "Error setting cvLabelFrequency: " + str(output['metadata'])
+    print("Passed parameter test")
+
 class AbstractModel:
     DATA_PATH = "./"
     OUTPUT_PATH = "./"
@@ -16,6 +35,20 @@ class AbstractModel:
         pass
 
     def run(self, data_path):
+        """
+        [cvModelName]-[videoPath].json
+        {
+            "metadata": {
+                "videoPath": "filename.mp4",
+                "cvLabelFrequency": "2Hz",
+                "cvModelName": "default",...
+            },
+            "data": {
+                "0:00.00" : {"angry": 0.1, "happy": 0.5, "otherEmotions":0.4},
+                "0:00.50" : {"angry": 0.2, "happy": 0.4, "otherEmotions":0.4}, ...
+            }
+        }
+        """
         pass
 
 class DefaultCVModel(AbstractModel):
@@ -209,5 +242,7 @@ if __name__ == '__main__':
     # detect_still_img(detector, read_img("3-people.jpg"))
 
     # write_output("s01_trial01", 2, "defaultmtcnn", data, write=True)
-    model = DefaultCVModel()
-    model.run("acting-lady.mp4")
+    print("Running unit tests")
+    # model.run("acting-lady.mp4")
+    test_output_format()
+    test_parameters()
